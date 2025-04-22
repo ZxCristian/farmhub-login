@@ -1,31 +1,56 @@
-import React from 'react';
-import { useNavigate } from 'react-router-dom';
-import '../App.css'; // This should remain as is since App.css is in src/ and Login.js is in src/components/
+import React, { useState, useContext } from 'react';
+import { AuthContext } from '../context/AuthContext';
+import '../App.css';
+import logo from '../assets/FarmHub.png'; // Import the logo image
 
 function Login() {
-  const navigate = useNavigate();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const { login } = useContext(AuthContext);
 
-  const handleSubmit = (e) => {
+  const handleLogin = (e) => {
     e.preventDefault();
-    navigate('/dashboard');
+    setError('');
+
+    if (email === 'admin@farmhub.com' && password === 'password123') {
+      login();
+    } else {
+      setError('Invalid email or password');
+    }
   };
 
   return (
-    <div className="App">
-      <div className="login-container">
-        <h1 className="title">FarmHub</h1>
-        <p className="subtitle">"Connecting farmers to success"</p>
-        <form className="login-form" onSubmit={handleSubmit}>
+    <div className="login-container">
+      <div className="login-box">
+        <img src={logo} alt="FarmHub Logo" className="login-logo" /> {/* Replace h2 with img */}
+        <form onSubmit={handleLogin}>
           <div className="input-group">
-            <label>Email:</label>
-            <input type="email" placeholder="Email" required />
+            <label htmlFor="email">Email</label>
+            <input
+              type="email"
+              id="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="Enter your email"
+              required
+            />
           </div>
           <div className="input-group">
-            <label>Password:</label>
-            <input type="password" placeholder="Password" required />
-            <a href="#" className="forgot-password">forgot your password?</a>
+            <label htmlFor="password">Password</label>
+            <input
+              type="password"
+              id="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="Enter your password"
+              required
+            />
           </div>
-          <button type="submit" className="sign-in-btn">Sign in</button>
+          {error && <p className="error">{error}</p>}
+          <button type="submit" className="login-btn">
+            Login
+          </button>
         </form>
       </div>
     </div>

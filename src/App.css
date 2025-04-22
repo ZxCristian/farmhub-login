@@ -1,79 +1,137 @@
-.App {
+/* Ensure the body does not scroll when on the login page */
+body {
+  margin: 0;
+  overflow: hidden; /* Disable scrolling on the body */
+}
+
+/* Style for the login container to fit the viewport height */
+.login-container {
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 100vh;
-  background-color: #f5f5f5;
-  font-family: Arial, sans-serif;
+  height: 100vh; /* Full viewport height */
+  background-color: #000000; /* Light gray background */
+  overflow: hidden; /* Disable scrolling within the container */
 }
 
-.login-container {
-  text-align: center;
-  background-color: white;
-  padding: 40px;
+/* Style for the login box */
+.login-box {
+  background: rgb(99, 98, 98);
+  padding: 2rem;
   border-radius: 8px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 400px; /* Limit the width of the login box */
+  text-align: center;
+  overflow: hidden; /* Prevent internal scrolling */
 }
 
-.title {
-  color: #2e7d32;
-  font-size: 36px;
-  margin-bottom: 0;
+/* Style for the logo */
+.login-logo {
+  width: 400px; /* Adjust logo size */
+  height: auto;
+  margin-bottom: 1rem;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  border-radius: 15px; /* Add curve */
+  object-fit: fill; /* Ensure image covers area without distortion */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* Subtle shadow for a softer look */
 }
 
-.subtitle {
-  color: #666;
-  font-style: italic;
-  margin-bottom: 30px;
-}
-
-.login-form {
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-}
-
+/* Style for the input group */
 .input-group {
-  display: flex;
-  flex-direction: column;
+  margin-bottom: 1.5rem;
   text-align: left;
 }
 
 .input-group label {
-  margin-bottom: 5px;
+  display: block;
+  margin-bottom: 0.5rem;
   font-weight: bold;
+  color: #333;
 }
 
 .input-group input {
-  padding: 10px;
-  border: 1px solid #ccc;
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #ddd;
   border-radius: 4px;
-  font-size: 16px;
+  font-size: 1rem;
+  box-sizing: border-box; /* Ensure padding doesn't affect width */
 }
 
-.forgot-password {
-  text-align: right;
-  font-size: 12px;
-  color: #1976d2;
-  text-decoration: none;
-  margin-top: 5px;
+.input-group input:focus {
+  outline: none;
+  border-color: #4caf50;
+  box-shadow: 0 0 5px rgba(76, 175, 80, 0.3);
 }
 
-.forgot-password:hover {
-  text-decoration: underline;
+/* Style for the error message */
+.error {
+  color: red;
+  margin-bottom: 1rem;
+  font-size: 0.9rem;
 }
 
-.sign-in-btn {
-  padding: 10px;
-  background-color: #e3f2fd;
-  border: 1px solid #1976d2;
+/* Style for the login button */
+.login-btn {
+  width: 100%;
+  padding: 0.75rem;
+  background-color: #4caf50;
+  color: white;
+  border: none;
   border-radius: 4px;
-  color: #1976d2;
-  font-size: 16px;
+  font-size: 1rem;
   cursor: pointer;
   transition: background-color 0.3s;
 }
 
-.sign-in-btn:hover {
-  background-color: #bbdefb;
+.login-btn:hover {
+  background-color: #45a049;
+}
+
+.sidebar-logo {
+  width: 200px;
+  height: auto;
+  margin-bottom: 10px;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  border-radius: 10px; /* Add curve */
+  object-fit:fill; /* Optional: ensure image covers area without distortion */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* Optional: subtle shadow for a softer look */
+}
+
+/* Media query for smaller screens to ensure content fits */
+@media (max-height: 600px) {
+  .login-box {
+    padding: 1rem; /* Reduce padding on smaller screens */
+  }
+
+  .login-logo {
+    width: 120px; /* Smaller logo on smaller screens */
+    margin-bottom: 0.5rem;
+  }
+
+  .input-group {
+    margin-bottom: 1rem; /* Reduce spacing */
+  }
+
+  .input-group input {
+    padding: 0.5rem; /* Reduce input padding */
+    font-size: 0.9rem;
+  }
+
+  .login-btn {
+    padding: 0.5rem; /* Reduce button padding */
+    font-size: 0.9rem;
+  }
+
+  .error {
+    margin-bottom: 0.5rem;
+    font-size: 0.8rem;
+  }
+
+ 
 }
