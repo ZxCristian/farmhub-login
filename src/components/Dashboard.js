@@ -1,9 +1,9 @@
-import React from 'react';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip } from 'recharts';
+import React, { useState } from 'react';
+import { LineChart, Line, XAxis, YAxis} from 'recharts';
 import Sidebar from './Sidebar';
 import '../Dashboard.css';
 
-const salesData = [
+const weeklySalesData = [
   { date: '1 Feb', sales: 2000 },
   { date: '2 Feb', sales: 3000 },
   { date: '3 Feb', sales: 2500 },
@@ -12,16 +12,150 @@ const salesData = [
   { date: '6 Feb', sales: 3000 },
 ];
 
-const discountData = [
-  { date: '1 Feb', uses: 800 },
-  { date: '2 Feb', uses: 600 },
-  { date: '3 Feb', uses: 500 },
-  { date: '4 Feb', uses: 400 },
-  { date: '5 Feb', uses: 300 },
-  { date: '6 Feb', uses: 200 },
+const monthlySalesData = [
+  { date: 'Week 1', sales: 15000 },
+  { date: 'Week 2', sales: 18000 },
+  { date: 'Week 3', sales: 16000 },
+  { date: 'Week 4', sales: 20000 },
+];
+
+const yearlySalesData = [
+  { date: 'Jan', sales: 60000 },
+  { date: 'Feb', sales: 65000 },
+  { date: 'Mar', sales: 70000 },
+  { date: 'Apr', sales: 68000 },
+  { date: 'May', sales: 72000 },
+  { date: 'Jun', sales: 75000 },
+  { date: 'Jul', sales: 78000 },
+  { date: 'Aug', sales: 80000 },
+  { date: 'Sep', sales: 82000 },
+  { date: 'Oct', sales: 85000 },
+  { date: 'Nov', sales: 88000 },
+  { date: 'Dec', sales: 90000 },
+];
+
+const weeklyAovData = [
+  { date: '1 Feb', aov: 35000 },
+  { date: '2 Feb', aov: 36000 },
+  { date: '3 Feb', aov: 34000 },
+  { date: '4 Feb', aov: 37000 },
+  { date: '5 Feb', aov: 35500 },
+  { date: '6 Feb', aov: 35000 },
+];
+
+const monthlyAovData = [
+  { date: 'Week 1', aov: 35000 },
+  { date: 'Week 2', aov: 36000 },
+  { date: 'Week 3', aov: 35500 },
+  { date: 'Week 4', aov: 36500 },
+];
+
+const yearlyAovData = [
+  { date: 'Jan', aov: 34000 },
+  { date: 'Feb', aov: 35541.38 },
+  { date: 'Mar', aov: 36000 },
+  { date: 'Apr', aov: 35000 },
+  { date: 'May', aov: 36500 },
+  { date: 'Jun', aov: 37000 },
+  { date: 'Jul', aov: 37500 },
+  { date: 'Aug', aov: 38000 },
+  { date: 'Sep', aov: 38500 },
+  { date: 'Oct', aov: 39000 },
+  { date: 'Nov', aov: 39500 },
+  { date: 'Dec', aov: 40000 },
+];
+
+const preOrderData = [
+  { date: '1 Feb', orders: 800 },
+  { date: '2 Feb', orders: 600 },
+  { date: '3 Feb', orders: 500 },
+  { date: '4 Feb', orders: 400 },
+  { date: '5 Feb', orders: 300 },
+  { date: '6 Feb', orders: 200 },
 ];
 
 function Dashboard() {
+  const [salesPeriod, setSalesPeriod] = useState('weekly');
+  const [aovPeriod, setAovPeriod] = useState('weekly');
+
+  const getSalesData = () => {
+    switch (salesPeriod) {
+      case 'weekly':
+        return weeklySalesData;
+      case 'monthly':
+        return monthlySalesData;
+      case 'yearly':
+        return yearlySalesData;
+      default:
+        return weeklySalesData;
+    }
+  };
+
+  const getSalesTotal = () => {
+    switch (salesPeriod) {
+      case 'weekly':
+        return '₱17.7K';
+      case 'monthly':
+        return '₱69.0K';
+      case 'yearly':
+        return '₱928.0K';
+      default:
+        return '₱17.7K';
+    }
+  };
+
+  const getSalesChange = () => {
+    switch (salesPeriod) {
+      case 'weekly':
+        return '▼ 5.7% vs. yesterday';
+      case 'monthly':
+        return '▲ 2.3% vs. last month';
+      case 'yearly':
+        return '▲ 8.5% vs. last year';
+      default:
+        return '▼ 5.7% vs. yesterday';
+    }
+  };
+
+  const getAovData = () => {
+    switch (aovPeriod) {
+      case 'weekly':
+        return weeklyAovData;
+      case 'monthly':
+        return monthlyAovData;
+      case 'yearly':
+        return yearlyAovData;
+      default:
+        return weeklyAovData;
+    }
+  };
+
+  const getAovTotal = () => {
+    switch (aovPeriod) {
+      case 'weekly':
+        return '₱35,541.38';
+      case 'monthly':
+        return '₱35,750.00';
+      case 'yearly':
+        return '₱37,000.00';
+      default:
+        return '₱35,541.38';
+    }
+  };
+
+  const getAovChange = () => {
+    switch (aovPeriod) {
+      case 'weekly':
+        return '▲ 1.2% vs. last week';
+      case 'monthly':
+        return '▲ 2.0% vs. last month';
+      case 'yearly':
+        return '▲ 5.7% vs. last year';
+      default:
+        return '▲ 1.2% vs. last week';
+    }
+  };
+
   return (
     <div className="dashboard">
       <Sidebar activePage="Dashboard" />
@@ -30,20 +164,71 @@ function Dashboard() {
         <div className="dashboard-grid">
           <div className="card sales">
             <h3>Sales</h3>
-            <p className="value">₱17.7K</p>
-            <p className="change down">▼ 5.7% vs. yesterday</p>
-            <h4>This week</h4>
-            <LineChart width={200} height={100} data={salesData}>
+            <p className="value">{getSalesTotal()}</p>
+            <p className={`change ${salesPeriod === 'weekly' ? 'down' : 'up'}`}>
+              {getSalesChange()}
+            </p>
+            <div className="sales-period-tabs">
+              <button
+                className={salesPeriod === 'weekly' ? 'active' : ''}
+                onClick={() => setSalesPeriod('weekly')}
+              >
+                Weekly
+              </button>
+              <button
+                className={salesPeriod === 'monthly' ? 'active' : ''}
+                onClick={() => setSalesPeriod('monthly')}
+              >
+                Monthly
+              </button>
+              <button
+                className={salesPeriod === 'yearly' ? 'active' : ''}
+                onClick={() => setSalesPeriod('yearly')}
+              >
+                Yearly
+              </button>
+            </div>
+            <h4>
+              {salesPeriod.charAt(0).toUpperCase() + salesPeriod.slice(1)}
+            </h4>
+            <LineChart width={200} height={100} data={getSalesData()}>
               <Line type="monotone" dataKey="sales" stroke="#00C49F" />
               <XAxis dataKey="date" hide />
               <YAxis hide />
             </LineChart>
           </div>
           <div className="card aov">
-            <h3>AOV - this week</h3>
-            <div className="gauge">
-              <p>₱35,0541.38</p>
+            <h3>AOV</h3>
+            <p className="value">{getAovTotal()}</p>
+            <p className="change up">{getAovChange()}</p>
+            <div className="aov-period-tabs">
+              <button
+                className={aovPeriod === 'weekly' ? 'active' : ''}
+                onClick={() => setAovPeriod('weekly')}
+              >
+                Weekly
+              </button>
+              <button
+                className={aovPeriod === 'monthly' ? 'active' : ''}
+                onClick={() => setAovPeriod('monthly')}
+              >
+                Monthly
+              </button>
+              <button
+                className={aovPeriod === 'yearly' ? 'active' : ''}
+                onClick={() => setAovPeriod('yearly')}
+              >
+                Yearly
+              </button>
             </div>
+            <h4>
+              {aovPeriod.charAt(0).toUpperCase() + aovPeriod.slice(1)}
+            </h4>
+            <LineChart width={200} height={100} data={getAovData()}>
+              <Line type="monotone" dataKey="aov" stroke="#00C49F" />
+              <XAxis dataKey="date" hide />
+              <YAxis hide />
+            </LineChart>
           </div>
           <div className="card orders">
             <h3>Unfulfilled orders - Today</h3>
@@ -158,12 +343,12 @@ function Dashboard() {
               </tbody>
             </table>
           </div>
-          <div className="card discount">
-            <h3>Discount code: FARMFRESH - this week</h3>
+          <div className="card pre-orders">
+            <h3>Active Pre-orders - this week</h3>
             <p className="value">2,480</p>
-            <h4>Uses</h4>
-            <LineChart width={200} height={100} data={discountData}>
-              <Line type="monotone" dataKey="uses" stroke="#00C49F" />
+            <h4>Orders</h4>
+            <LineChart width={200} height={100} data={preOrderData}>
+              <Line type="monotone" dataKey="orders" stroke="#00C49F" />
               <XAxis dataKey="date" hide />
               <YAxis hide />
             </LineChart>

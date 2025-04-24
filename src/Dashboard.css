@@ -63,8 +63,8 @@
 }
 
 .nav-links li.active a {
-  background-color: #ffa31a;
-  color: #000000;
+  background-color: #4F7A1F;
+  color: #ffffff;
   font-weight: bold;
 }
 
@@ -94,7 +94,7 @@
 .main-content {
   margin-left: 250px;
   flex: 1;
-  background-color: #fff;
+  background-color: rgb(233, 231, 231);
   color: #000000;
   padding: 20px;
   overflow-y: auto;
@@ -560,4 +560,141 @@
 
 .btn-confirm:hover {
   background-color: #cc0000;
+}
+
+.modal-form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.duration-inputs {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap; /* Allows wrapping on small screens */
+}
+
+.duration-inputs label {
+  flex: 1; /* Makes each label/input take equal width */
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  min-width: 100px; /* Ensures inputs don't get too narrow */
+}
+
+.duration-inputs input {
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  width: 100%; /* Ensures inputs fill their container */
+  box-sizing: border-box; /* Prevents padding from affecting width */
+}
+
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.btn-cancel,
+.btn-confirm {
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.btn-cancel {
+  background-color: #ccc;
+  border: none;
+}
+
+.btn-confirm {
+  background-color: #007bff;
+  color: white;
+  border: none;
+}
+
+.btn-cancel:disabled,
+.btn-confirm:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Ensure spinner is styled (from original code) */
+.spinner {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border: 2px solid #fff;
+  border-top: 2px solid transparent;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.sales-period-tabs {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.sales-period-tabs button {
+  padding: 5px 10px;
+  border: none;
+  background: #f0f0f0;
+  cursor: pointer;
+  border-radius: 5px;
+  font-size: 14px;
+}
+
+.sales-period-tabs button.active {
+  background: #00C49F;
+  color: white;
+}
+
+.sales-period-tabs button:hover {
+  background: #e0e0e0;
+}
+
+.sales-period-tabs button.active:hover {
+  background: #00a87d;
+}
+
+.sales-period-tabs,
+.aov-period-tabs {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.sales-period-tabs button,
+.aov-period-tabs button {
+  padding: 5px 10px;
+  border: none;
+  background: #f0f0f0;
+  cursor: pointer;
+  border-radius: 5px;
+  font-size: 14px;
+}
+
+.sales-period-tabs button.active,
+.aov-period-tabs button.active {
+  background: #00C49F;
+  color: white;
+}
+
+.sales-period-tabs button:hover,
+.aov-period-tabs button:hover {
+  background: #e0e0e0;
+}
+
+.sales-period-tabs button.active:hover,
+.aov-period-tabs button.active:hover {
+  background: #00a87d;
 }
