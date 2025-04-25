@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import * as XLSX from 'xlsx';
 import Sidebar from './Sidebar';
 import '../Dashboard.css';
 
@@ -291,6 +292,24 @@ function OrdersHistory() {
     }
   };
 
+  // Excel export function
+  const exportToExcel = () => {
+    const worksheet = XLSX.utils.json_to_sheet(
+      sortedOrders.map((order) => ({
+        'Product ID': order.productId,
+        Name: order.name,
+        Order: order.order,
+        Quantity: order.quantity,
+        Price: order.price,
+        Status: order.status,
+        Date: order.date,
+      }))
+    );
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'OrdersHistory');
+    XLSX.writeFile(workbook, 'OrdersHistory.xlsx');
+  };
+
   const renderPagination = () => {
     if (totalPages <= 1) return null;
 
@@ -335,6 +354,9 @@ function OrdersHistory() {
       <div className="main-content">
         <h1>ORDER HISTORY</h1>
         <div className="search-bar">
+        <button className="action-btn excel" onClick={exportToExcel}>
+            Export to Excel
+          </button>
           <select
             value={recordsPerPage}
             onChange={handleRecordsPerPageChange}
@@ -352,6 +374,7 @@ function OrdersHistory() {
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
+         
         </div>
         <div className="table-container">
           <table>

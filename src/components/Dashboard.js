@@ -65,7 +65,7 @@ const yearlyAovData = [
   { date: 'Dec', aov: 40000 },
 ];
 
-const preOrderData = [
+const weeklyPreOrderData = [
   { date: '1 Feb', orders: 800 },
   { date: '2 Feb', orders: 600 },
   { date: '3 Feb', orders: 500 },
@@ -74,9 +74,32 @@ const preOrderData = [
   { date: '6 Feb', orders: 200 },
 ];
 
+const monthlyPreOrderData = [
+  { date: 'Week 1', orders: 2500 },
+  { date: 'Week 2', orders: 2200 },
+  { date: 'Week 3', orders: 2000 },
+  { date: 'Week 4', orders: 1800 },
+];
+
+const yearlyPreOrderData = [
+  { date: 'Jan', orders: 10000 },
+  { date: 'Feb', orders: 9500 },
+  { date: 'Mar', orders: 9000 },
+  { date: 'Apr', orders: 8500 },
+  { date: 'May', orders: 8000 },
+  { date: 'Jun', orders: 7500 },
+  { date: 'Jul', orders: 7000 },
+  { date: 'Aug', orders: 6500 },
+  { date: 'Sep', orders: 6000 },
+  { date: 'Oct', orders: 5500 },
+  { date: 'Nov', orders: 5000 },
+  { date: 'Dec', orders: 4500 },
+];
+
 function Dashboard() {
   const [salesPeriod, setSalesPeriod] = useState('weekly');
   const [aovPeriod, setAovPeriod] = useState('weekly');
+  const [preOrderPeriod, setPreOrderPeriod] = useState('weekly');
 
   const getSalesData = () => {
     switch (salesPeriod) {
@@ -156,6 +179,38 @@ function Dashboard() {
     }
   };
 
+  const getPreOrderData = () => {
+    switch (preOrderPeriod) {
+      case 'weekly':
+        return weeklyPreOrderData;
+      case 'monthly':
+        return monthlyPreOrderData;
+      case 'yearly':
+        return yearlyPreOrderData;
+      default:
+        return weeklyPreOrderData;
+    }
+  };
+
+  const getPreOrderTotal = () => {
+    const data = getPreOrderData();
+    const total = data.reduce((sum, item) => sum + item.orders, 0);
+    return total.toLocaleString();
+  };
+
+  const getPreOrderChange = () => {
+    switch (preOrderPeriod) {
+      case 'weekly':
+        return '▼ 3.5% vs. last week';
+      case 'monthly':
+        return '▲ 1.8% vs. last month';
+      case 'yearly':
+        return '▲ 4.2% vs. last year';
+      default:
+        return '▼ 3.5% vs. last week';
+    }
+  };
+
   return (
     <div className="dashboard">
       <Sidebar activePage="Dashboard" />
@@ -215,6 +270,7 @@ function Dashboard() {
                 Monthly
               </button>
               <button
+                keep
                 className={aovPeriod === 'yearly' ? 'active' : ''}
                 onClick={() => setAovPeriod('yearly')}
               >
@@ -344,10 +400,35 @@ function Dashboard() {
             </table>
           </div>
           <div className="card pre-orders">
-            <h3>Active Pre-orders - this week</h3>
-            <p className="value">2,480</p>
-            <h4>Orders</h4>
-            <LineChart width={200} height={100} data={preOrderData}>
+            <h3>Active Pre-orders</h3>
+            <p className="value">{getPreOrderTotal()}</p>
+            <p className={`change ${preOrderPeriod === 'weekly' ? 'down' : 'up'}`}>
+              {getPreOrderChange()}
+            </p>
+            <div className="pre-order-period-tabs">
+              <button
+                className={preOrderPeriod === 'weekly' ? 'active' : ''}
+                onClick={() => setPreOrderPeriod('weekly')}
+              >
+                Weekly
+              </button>
+              <button
+                className={preOrderPeriod === 'monthly' ? 'active' : ''}
+                onClick={() => setPreOrderPeriod('monthly')}
+              >
+                Monthly
+              </button>
+              <button
+                className={preOrderPeriod === 'yearly' ? 'active' : ''}
+                onClick={() => setPreOrderPeriod('yearly')}
+              >
+                Yearly
+              </button>
+            </div>
+            <h4>
+              {preOrderPeriod.charAt(0).toUpperCase() + preOrderPeriod.slice(1)}
+            </h4>
+            <LineChart width={200} height={100} data={getPreOrderData()}>
               <Line type="monotone" dataKey="orders" stroke="#00C49F" />
               <XAxis dataKey="date" hide />
               <YAxis hide />

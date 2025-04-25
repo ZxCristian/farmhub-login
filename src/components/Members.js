@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
+import * as XLSX from 'xlsx';
 import Sidebar from './Sidebar';
 import Modal from './Modal';
 import '../Dashboard.css';
@@ -389,7 +390,26 @@ function Members() {
     }
   };
 
-  
+  // Excel export function
+  const exportToExcel = () => {
+    const worksheet = XLSX.utils.json_to_sheet(
+      sortedMembers.map((member) => ({
+        'User ID': member.userId,
+        Name: member.name,
+        Address: member.address,
+        'Contact Number': member.contactNumber,
+        Email: member.email,
+        Status: member.status,
+        'Suspension Start': member.suspensionStart ? new Date(member.suspensionStart).toLocaleString() : '-',
+        'Suspension Duration': member.suspensionDuration ? `${member.suspensionDuration.days} days, ${member.suspensionDuration.hours} hours, ${member.suspensionDuration.minutes} minutes` : '-',
+        'Suspension Reason': member.suspensionReason || '-',
+        'Revoke Reason': member.revokeReason || '-',
+      }))
+    );
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Members');
+    XLSX.writeFile(workbook, 'Members.xlsx');
+  };
 
   const renderPagination = () => {
     if (totalPages <= 1) return null;
@@ -466,6 +486,9 @@ function Members() {
       <div className="main-content">
         <h1>MEMBERS</h1>
         <div className="search-bar">
+        <button className="action-btn excel" onClick={exportToExcel}>
+            Export to Excel
+          </button>
           <select
             value={recordsPerPage}
             onChange={handleRecordsPerPageChange}
@@ -492,6 +515,7 @@ function Members() {
             value={searchTerm}
             onChange={(e) => handleSearchChange(e.target.value)()}
           />
+          
         </div>
        
         <div className="table-container">

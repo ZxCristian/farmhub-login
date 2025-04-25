@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
+import * as XLSX from 'xlsx';
 import Sidebar from './Sidebar';
 import '../Dashboard.css';
 
@@ -8,6 +9,7 @@ function ActivePreOrders() {
   const [selectedPreOrder, setSelectedPreOrder] = useState(null);
   const [recordsPerPage, setRecordsPerPage] = useState(10);
   const [currentPage, setCurrentPage] = useState(1);
+  const componentRef = useRef();
 
   // Sample data for active vegetable pre-orders with effective date and buyer
   const [preOrders] = useState([
@@ -201,6 +203,23 @@ function ActivePreOrders() {
     }
   };
 
+  // Excel export function
+  const exportToExcel = () => {
+    const worksheet = XLSX.utils.json_to_sheet(sortedPreOrders.map(preOrder => ({
+      'Product ID': preOrder.productId,
+      'Farmer': preOrder.farmer,
+      'Buyer': preOrder.buyer,
+      'Pre-Order': preOrder.preOrder,
+      'Quantity': preOrder.quantity,
+      'Price': preOrder.price,
+      'Effective Date': preOrder.effectiveDate,
+    })));
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'PreOrders');
+    XLSX.writeFile(workbook, 'ActivePreOrders.xlsx');
+  };
+
+
   const renderPagination = () => {
     if (totalPages <= 1) return null;
 
@@ -245,6 +264,9 @@ function ActivePreOrders() {
       <div className="main-content">
         <h1>ACTIVE PRE-ORDERS</h1>
         <div className="search-bar">
+        <button className="action-btn excel" onClick={exportToExcel}>
+            Export to Excel
+          </button>
           <select
             value={recordsPerPage}
             onChange={handleRecordsPerPageChange}
@@ -262,8 +284,10 @@ function ActivePreOrders() {
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
+         
+          
         </div>
-        <div className="table-container">
+        <div className="table-container" ref={componentRef}>
           <table>
             <thead>
               <tr>

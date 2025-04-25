@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
+import * as XLSX from 'xlsx';
 import Sidebar from './Sidebar';
 import Modal from './Modal';
 import '../Dashboard.css';
@@ -79,11 +80,9 @@ function Customers() {
     try {
       if (savedCustomers) {
         const parsedCustomers = JSON.parse(savedCustomers);
-        // Ensure all customers have a unique userId
         const usedIds = new Set();
         return parsedCustomers.map((customer, index) => {
           let userId = customer.userId !== undefined ? Number(customer.userId) : index + 1;
-          // Ensure uniqueness
           while (usedIds.has(userId)) {
             userId = Math.max(...usedIds) + 1;
           }
@@ -151,7 +150,6 @@ function Customers() {
     };
   }, [customers]);
 
-  // Debounce search input
   const handleSearchChange = useCallback((value) => {
     let timeout;
     return () => {
@@ -393,7 +391,25 @@ function Customers() {
     }
   };
 
-  
+  const exportToExcel = () => {
+    const worksheet = XLSX.utils.json_to_sheet(
+      sortedCustomers.map((customer) => ({
+        'User ID': customer.userId,
+        Name: customer.name,
+        Address: customer.address,
+        'Contact Number': customer.contactNumber,
+        Email: customer.email,
+        Status: customer.status,
+        'Suspension Start': customer.suspensionStart ? new Date(customer.suspensionStart).toLocaleString() : '-',
+        'Suspension Duration': customer.suspensionDuration ? `${customer.suspensionDuration.days} days, ${customer.suspensionDuration.hours} hours, ${customer.suspensionDuration.minutes} minutes` : '-',
+        'Suspension Reason': customer.suspensionReason || '-',
+        'Revoke Reason': customer.revokeReason || '-',
+      }))
+    );
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Customers');
+    XLSX.writeFile(workbook, 'Customers.xlsx');
+  };
 
   const renderPagination = () => {
     if (totalPages <= 1) return null;
@@ -468,6 +484,9 @@ function Customers() {
       <div className="main-content">
         <h1>CUSTOMERS</h1>
         <div className="search-bar">
+        <button className="action-btn excel" onClick={exportToExcel}>
+            Export to Excel
+          </button>
           <select
             value={recordsPerPage}
             onChange={handleRecordsPerPageChange}
@@ -494,6 +513,7 @@ function Customers() {
             value={searchTerm}
             onChange={(e) => handleSearchChange(e.target.value)()}
           />
+         
         </div>
        
         <div className="table-container">

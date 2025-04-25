@@ -1029,3 +1029,55 @@ tr.status-revoked {
   background: #007bff;
   color: #fff;
 }
+
+.pre-order-period-tabs {
+  display: flex;
+  gap: 10px;
+  margin: 10px 0;
+}
+
+.pre-order-period-tabs button {
+  padding: 5px 10px;
+  border: 1px solid #ccc;
+  background: #f9f9f9;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+.pre-order-period-tabs button.active {
+  background: #00C49F;
+  color: white;
+  border-color: #00C49F;
+}
+
+.search-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.action-btn.print {
+  background-color: #4a90e2;
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.action-btn.excel {
+  background-color: #2e7d32;
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.action-btn.print:hover {
+  background-color: #357abd;
+}
+
+.action-btn.excel:hover {
+  background-color: #1b5e20;
+}
