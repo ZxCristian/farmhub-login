@@ -10,7 +10,7 @@ function OrdersHistory() {
   const [currentPage, setCurrentPage] = useState(1);
 
   // Sample data for order history (with vegetables and dates)
-  const [orders, setOrders] = useState([
+  const [orders] = useState([
     {
       productId: 'O201',
       name: 'Rachel Adams',

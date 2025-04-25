@@ -407,12 +407,7 @@ function Members() {
     }
   };
 
-  const handleResetData = () => {
-    if (window.confirm('Are you sure you want to reset all member data to default?')) {
-      localStorage.removeItem('members');
-      setMembers(defaultMembers);
-    }
-  };
+  
 
   const renderPagination = () => {
     if (totalPages <= 1) return null;

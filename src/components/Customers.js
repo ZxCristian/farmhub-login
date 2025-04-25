@@ -148,7 +148,7 @@ function Customers() {
         }
       }
     });
-
+  
     return () => {
       Object.values(timers).forEach((timer) => clearTimeout(timer));
     };

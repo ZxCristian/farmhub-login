@@ -10,7 +10,7 @@ function ActivePreOrders() {
   const [currentPage, setCurrentPage] = useState(1);
 
   // Sample data for active vegetable pre-orders with effective date and buyer
-  const [preOrders, setPreOrders] = useState([
+  const [preOrders] = useState([
     {
       productId: 'V001',
       farmer: 'Sarah Green',

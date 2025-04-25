@@ -10,7 +10,7 @@ function PreOrdersHistory() {
   const [currentPage, setCurrentPage] = useState(1);
 
   // Sample data for pre-order history (with vegetables and dates)
-  const [preOrders, setPreOrders] = useState([
+  const [preOrders] = useState([
     {
       productId: 'V101',
       farmer: 'Anna Taylor',
