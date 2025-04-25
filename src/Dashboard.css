@@ -216,10 +216,7 @@
   }
 }
 
-.action-btn.reset {
-  background-color: #6c757d;
-  color: white;
-}
+
 
 .table-container {
   background-color: #f5f5f5;
@@ -697,4 +694,338 @@
 .sales-period-tabs button.active:hover,
 .aov-period-tabs button.active:hover {
   background: #00a87d;
+}
+
+.dashboard {
+  display: flex;
+  min-height: 100vh;
+}
+
+.main-content {
+  flex: 1;
+  padding: 20px;
+  background-color: #f4f6f9;
+}
+
+.search-bar {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.search-bar select,
+.search-bar input,
+.records-per-page {
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.table-container {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+
+
+th {
+  background-color: #f8f9fa;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+th.sorted {
+  background-color: #e9ecef;
+}
+
+th:hover {
+  background-color: #e9ecef;
+}
+
+.action-btn {
+  padding: 6px 12px;
+  margin-right: 5px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.approve {
+  background-color: #28a745;
+  color: white;
+}
+
+.reject {
+  background-color: #dc3545;
+  color: white;
+}
+
+.action-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.spinner {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border: 2px solid #fff;
+  border-radius: 50%;
+  border-top-color: transparent;
+  animation: spin 1s linear infinite;
+  margin-right: 5px;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.status-pending {
+  background-color: #fff3cd;
+}
+
+.status-approved {
+  background-color: #d4edda;
+}
+
+.status-rejected {
+  background-color: #f8d7da;
+}
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.pagination button {
+  padding: 8px 12px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background-color: white;
+  cursor: pointer;
+}
+
+.pagination button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.pagination span {
+  font-size: 14px;
+}
+.reason-input textarea {
+  padding: 5px;
+  width: 100%;
+  box-sizing: border-box;
+  resize: vertical;
+}
+
+
+.search-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.search-bar select,
+.search-bar input {
+  padding: 5px;
+}
+
+.search-bar button {
+  padding: 5px 10px;
+  background: #dc3545;
+  color: #fff;
+  border: none;
+  cursor: pointer;
+}
+
+.search-bar button:hover {
+  background: #c82333;
+}
+
+
+
+
+
+
+th.sorted {
+  background: #e0e0e0;
+}
+
+tr.status-active {
+  background: #fff;
+}
+
+tr.status-suspended {
+  background: #fff3cd;
+}
+
+tr.status-revoked {
+  background: #f8d7da;
+}
+
+.action-btn {
+  margin: 0 5px;
+  padding: 5px 10px;
+  border: none;
+  cursor: pointer;
+}
+
+.action-btn.suspend {
+  background: #ffc107;
+  color: #000;
+}
+
+.action-btn.revoke {
+  background: #dc3545;
+  color: #fff;
+}
+
+.action-btn.reactivate {
+  background: #28a745;
+  color: #fff;
+}
+
+.action-btn.view {
+  background: #17a2b8;
+  color: #fff;
+}
+
+.spinner {
+  border: 2px solid #f3f3f3;
+  border-top: 2px solid #3498db;
+  border-radius: 50%;
+  width: 12px;
+  height: 12px;
+  animation: spin 1s linear infinite;
+  display: inline-block;
+  margin-right: 5px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+.pagination button {
+  margin: 0 5px;
+  padding: 5px 10px;
+  border: 1px solid #ccc;
+  background: #fff;
+  cursor: pointer;
+}
+
+.pagination button.active {
+  background: #007bff;
+  color: #fff;
+  border-color: #007bff;
+}
+
+.pagination button:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.pagination span {
+  margin: 0 10px;
+}
+
+.modal-form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.duration-inputs {
+  display: flex;
+  gap: 10px;
+}
+
+.duration-inputs label {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.duration-inputs input {
+  padding: 5px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.reason-input {
+  display: flex;
+  flex-direction: column;
+}
+
+.reason-input label {
+  display: flex;
+  flex-direction: column;
+}
+
+.reason-input select,
+.reason-input textarea {
+  padding: 5px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.view-details {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.view-details p {
+  margin: 0;
+}
+
+.view-details strong {
+  display: inline-block;
+  width: 150px;
+}
+
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 15px;
+}
+
+.btn-cancel,
+.btn-confirm {
+  padding: 5px 10px;
+  border: none;
+  cursor: pointer;
+}
+
+.btn-cancel {
+  background: #6c757d;
+  color: #fff;
+}
+
+.btn-confirm {
+  background: #007bff;
+  color: #fff;
 }

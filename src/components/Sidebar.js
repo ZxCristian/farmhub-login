@@ -66,6 +66,11 @@ function Sidebar({ activePage }) {
                 <span style={{ marginRight: '8px' }}>👨‍🌾</span> Members
               </Link>
             </li>
+            <li className={activePage === 'Customers' ? 'active' : ''}>
+              <Link to="/customers">
+                <span style={{ marginRight: '8px' }}>🧑‍💻</span> Customers
+              </Link>
+            </li>
             <li className={activePage === 'Active Pre-Order' ? 'active' : ''}>
               <Link to="/active-pre-orders">
                 <span style={{ marginRight: '8px' }}>✅</span> Active Pre-Order
@@ -88,7 +93,7 @@ function Sidebar({ activePage }) {
               <span style={{ marginRight: '8px' }}>🔒</span> Change Password
             </li>
             <li onClick={openLogoutModal}>
-              <span style={{ marginRight: '8px' }}>↪</span> Logout
+              <span style={{ marginRight: '12px' , marginLeft: '4px'}}>↪</span> Logout
             </li>
           </ul>
         </div>

@@ -6,9 +6,101 @@ function ActivePreOrders() {
   const [searchTerm, setSearchTerm] = useState('');
   const [sortConfig, setSortConfig] = useState({ key: 'productId', direction: 'asc' });
   const [selectedPreOrder, setSelectedPreOrder] = useState(null);
+  const [recordsPerPage, setRecordsPerPage] = useState(10);
+  const [currentPage, setCurrentPage] = useState(1);
 
   // Sample data for active vegetable pre-orders with effective date and buyer
   const [preOrders, setPreOrders] = useState([
+    {
+      productId: 'V001',
+      farmer: 'Sarah Green',
+      preOrder: 'Carrots',
+      quantity: 5,
+      price: 3.00,
+      effectiveDate: '2025-04-15',
+      buyer: 'Green Market Co.',
+    },
+    {
+      productId: 'V002',
+      farmer: 'Tom Brown',
+      preOrder: 'Broccoli',
+      quantity: 3,
+      price: 4.50,
+      effectiveDate: '2025-04-18',
+      buyer: 'Fresh Eats LLC',
+    },
+    {
+      productId: 'V003',
+      farmer: 'Lisa White',
+      preOrder: 'Bell Peppers',
+      quantity: 4,
+      price: 5.00,
+      effectiveDate: '2025-04-10',
+      buyer: 'John Doe',
+    },
+    {
+      productId: 'V004',
+      farmer: 'Mike Black',
+      preOrder: 'Spinach',
+      quantity: 2,
+      price: 2.50,
+      effectiveDate: '2025-04-20',
+      buyer: 'Healthy Bites',
+    },
+    {
+      productId: 'V005',
+      farmer: 'Emma Blue',
+      preOrder: 'Zucchini',
+      quantity: 6,
+      price: 3.75,
+      effectiveDate: '2025-04-12',
+      buyer: 'Farm to Table Inc.',
+    },
+    {
+      productId: 'V001',
+      farmer: 'Sarah Green',
+      preOrder: 'Carrots',
+      quantity: 5,
+      price: 3.00,
+      effectiveDate: '2025-04-15',
+      buyer: 'Green Market Co.',
+    },
+    {
+      productId: 'V002',
+      farmer: 'Tom Brown',
+      preOrder: 'Broccoli',
+      quantity: 3,
+      price: 4.50,
+      effectiveDate: '2025-04-18',
+      buyer: 'Fresh Eats LLC',
+    },
+    {
+      productId: 'V003',
+      farmer: 'Lisa White',
+      preOrder: 'Bell Peppers',
+      quantity: 4,
+      price: 5.00,
+      effectiveDate: '2025-04-10',
+      buyer: 'John Doe',
+    },
+    {
+      productId: 'V004',
+      farmer: 'Mike Black',
+      preOrder: 'Spinach',
+      quantity: 2,
+      price: 2.50,
+      effectiveDate: '2025-04-20',
+      buyer: 'Healthy Bites',
+    },
+    {
+      productId: 'V005',
+      farmer: 'Emma Blue',
+      preOrder: 'Zucchini',
+      quantity: 6,
+      price: 3.75,
+      effectiveDate: '2025-04-12',
+      buyer: 'Farm to Table Inc.',
+    },
     {
       productId: 'V001',
       farmer: 'Sarah Green',
@@ -78,6 +170,11 @@ function ActivePreOrders() {
     return 0;
   });
 
+  // Pagination logic
+  const totalPages = Math.ceil(sortedPreOrders.length / recordsPerPage);
+  const startIndex = (currentPage - 1) * recordsPerPage;
+  const paginatedPreOrders = sortedPreOrders.slice(startIndex, startIndex + recordsPerPage);
+
   const sortData = (key) => {
     const direction =
       sortConfig.key === key && sortConfig.direction === 'asc' ? 'desc' : 'asc';
@@ -92,7 +189,55 @@ function ActivePreOrders() {
     setSelectedPreOrder(null);
   };
 
-  
+  const handleRecordsPerPageChange = (e) => {
+    const value = e.target.value === '100' ? sortedPreOrders.length : Number(e.target.value);
+    setRecordsPerPage(value);
+    setCurrentPage(1); // Reset to first page when changing records per page
+  };
+
+  const handlePageChange = (page) => {
+    if (page >= 1 && page <= totalPages) {
+      setCurrentPage(page);
+    }
+  };
+
+  const renderPagination = () => {
+    if (totalPages <= 1) return null;
+
+    const pageNumbers = [];
+    for (let i = 1; i <= totalPages; i++) {
+      pageNumbers.push(i);
+    }
+
+    return (
+      <div className="pagination">
+        <button
+          onClick={() => handlePageChange(currentPage - 1)}
+          disabled={currentPage === 1}
+        >
+          Previous
+        </button>
+        {pageNumbers.map((page) => (
+          <button
+            key={page}
+            onClick={() => handlePageChange(page)}
+            className={currentPage === page ? 'active' : ''}
+          >
+            {page}
+          </button>
+        ))}
+        <button
+          onClick={() => handlePageChange(currentPage + 1)}
+          disabled={currentPage === totalPages}
+        >
+          Next
+        </button>
+        <span>
+          Page {currentPage} of {totalPages} | Total Pre-Orders: {sortedPreOrders.length}
+        </span>
+      </div>
+    );
+  };
 
   return (
     <div className="dashboard">
@@ -100,13 +245,23 @@ function ActivePreOrders() {
       <div className="main-content">
         <h1>ACTIVE PRE-ORDERS</h1>
         <div className="search-bar">
+          <select
+            value={recordsPerPage}
+            onChange={handleRecordsPerPageChange}
+            className="records-per-page"
+          >
+            <option value="5">5</option>
+            <option value="10">10</option>
+            <option value="25">25</option>
+            <option value="50">50</option>
+            <option value="100">All</option>
+          </select>
           <input
             type="text"
             placeholder="Search..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
-         
         </div>
         <div className="table-container">
           <table>
@@ -137,8 +292,8 @@ function ActivePreOrders() {
               </tr>
             </thead>
             <tbody>
-              {sortedPreOrders.length > 0 ? (
-                sortedPreOrders.map((preOrder, index) => (
+              {paginatedPreOrders.length > 0 ? (
+                paginatedPreOrders.map((preOrder, index) => (
                   <tr key={index}>
                     <td>{preOrder.productId}</td>
                     <td>{preOrder.farmer}</td>
@@ -167,7 +322,7 @@ function ActivePreOrders() {
             </tbody>
           </table>
         </div>
-
+        {renderPagination()}
         {selectedPreOrder && (
           <div className="modal-overlay">
             <div className="modal-content">

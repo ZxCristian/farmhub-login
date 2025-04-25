@@ -6,9 +6,146 @@ function PreOrdersHistory() {
   const [searchTerm, setSearchTerm] = useState('');
   const [sortConfig, setSortConfig] = useState({ key: 'productId', direction: 'asc' });
   const [selectedPreOrder, setSelectedPreOrder] = useState(null);
+  const [recordsPerPage, setRecordsPerPage] = useState(10);
+  const [currentPage, setCurrentPage] = useState(1);
 
   // Sample data for pre-order history (with vegetables and dates)
   const [preOrders, setPreOrders] = useState([
+    {
+      productId: 'V101',
+      farmer: 'Anna Taylor',
+      preOrder: 'Tomatoes',
+      quantity: 8,
+      price: 2.50,
+      status: 'Completed',
+      date: '2025-02-05',
+    },
+    {
+      productId: 'V102',
+      farmer: 'Mark Evans',
+      preOrder: 'Cucumbers',
+      quantity: 4,
+      price: 3.00,
+      status: 'Completed',
+      date: '2025-03-01',
+    },
+    {
+      productId: 'V103',
+      farmer: 'Sophie Clark',
+      preOrder: 'Potatoes',
+      quantity: 10,
+      price: 1.50,
+      status: 'Cancelled',
+      date: '2025-03-20',
+    },
+    {
+      productId: 'V104',
+      farmer: 'James Lee',
+      preOrder: 'Eggplant',
+      quantity: 3,
+      price: 4.00,
+      status: 'Completed',
+      date: '2025-01-15',
+    },
+    {
+      productId: 'V105',
+      farmer: 'Laura Harris',
+      preOrder: 'Onions',
+      quantity: 6,
+      price: 2.00,
+      status: 'Cancelled',
+      date: '2025-04-05',
+    },
+    {
+      productId: 'V101',
+      farmer: 'Anna Taylor',
+      preOrder: 'Tomatoes',
+      quantity: 8,
+      price: 2.50,
+      status: 'Completed',
+      date: '2025-02-05',
+    },
+    {
+      productId: 'V102',
+      farmer: 'Mark Evans',
+      preOrder: 'Cucumbers',
+      quantity: 4,
+      price: 3.00,
+      status: 'Completed',
+      date: '2025-03-01',
+    },
+    {
+      productId: 'V103',
+      farmer: 'Sophie Clark',
+      preOrder: 'Potatoes',
+      quantity: 10,
+      price: 1.50,
+      status: 'Cancelled',
+      date: '2025-03-20',
+    },
+    {
+      productId: 'V104',
+      farmer: 'James Lee',
+      preOrder: 'Eggplant',
+      quantity: 3,
+      price: 4.00,
+      status: 'Completed',
+      date: '2025-01-15',
+    },
+    {
+      productId: 'V105',
+      farmer: 'Laura Harris',
+      preOrder: 'Onions',
+      quantity: 6,
+      price: 2.00,
+      status: 'Cancelled',
+      date: '2025-04-05',
+    },
+    {
+      productId: 'V101',
+      farmer: 'Anna Taylor',
+      preOrder: 'Tomatoes',
+      quantity: 8,
+      price: 2.50,
+      status: 'Completed',
+      date: '2025-02-05',
+    },
+    {
+      productId: 'V102',
+      farmer: 'Mark Evans',
+      preOrder: 'Cucumbers',
+      quantity: 4,
+      price: 3.00,
+      status: 'Completed',
+      date: '2025-03-01',
+    },
+    {
+      productId: 'V103',
+      farmer: 'Sophie Clark',
+      preOrder: 'Potatoes',
+      quantity: 10,
+      price: 1.50,
+      status: 'Cancelled',
+      date: '2025-03-20',
+    },
+    {
+      productId: 'V104',
+      farmer: 'James Lee',
+      preOrder: 'Eggplant',
+      quantity: 3,
+      price: 4.00,
+      status: 'Completed',
+      date: '2025-01-15',
+    },
+    {
+      productId: 'V105',
+      farmer: 'Laura Harris',
+      preOrder: 'Onions',
+      quantity: 6,
+      price: 2.00,
+      status: 'Cancelled',
+      date: '2025-04-05',
+    },
     {
       productId: 'V101',
       farmer: 'Anna Taylor',
@@ -78,6 +215,11 @@ function PreOrdersHistory() {
     return 0;
   });
 
+  // Pagination logic
+  const totalPages = Math.ceil(sortedPreOrders.length / recordsPerPage);
+  const startIndex = (currentPage - 1) * recordsPerPage;
+  const paginatedPreOrders = sortedPreOrders.slice(startIndex, startIndex + recordsPerPage);
+
   const sortData = (key) => {
     const direction =
       sortConfig.key === key && sortConfig.direction === 'asc' ? 'desc' : 'asc';
@@ -92,7 +234,55 @@ function PreOrdersHistory() {
     setSelectedPreOrder(null);
   };
 
- 
+  const handleRecordsPerPageChange = (e) => {
+    const value = e.target.value === '100' ? sortedPreOrders.length : Number(e.target.value);
+    setRecordsPerPage(value);
+    setCurrentPage(1); // Reset to first page when changing records per page
+  };
+
+  const handlePageChange = (page) => {
+    if (page >= 1 && page <= totalPages) {
+      setCurrentPage(page);
+    }
+  };
+
+  const renderPagination = () => {
+    if (totalPages <= 1) return null;
+
+    const pageNumbers = [];
+    for (let i = 1; i <= totalPages; i++) {
+      pageNumbers.push(i);
+    }
+
+    return (
+      <div className="pagination">
+        <button
+          onClick={() => handlePageChange(currentPage - 1)}
+          disabled={currentPage === 1}
+        >
+          Previous
+        </button>
+        {pageNumbers.map((page) => (
+          <button
+            key={page}
+            onClick={() => handlePageChange(page)}
+            className={currentPage === page ? 'active' : ''}
+          >
+            {page}
+          </button>
+        ))}
+        <button
+          onClick={() => handlePageChange(currentPage + 1)}
+          disabled={currentPage === totalPages}
+        >
+          Next
+        </button>
+        <span>
+          Page {currentPage} of {totalPages} | Total Pre-Orders: {sortedPreOrders.length}
+        </span>
+      </div>
+    );
+  };
 
   return (
     <div className="dashboard">
@@ -100,13 +290,23 @@ function PreOrdersHistory() {
       <div className="main-content">
         <h1>PRE-ORDERS HISTORY</h1>
         <div className="search-bar">
+          <select
+            value={recordsPerPage}
+            onChange={handleRecordsPerPageChange}
+            className="records-per-page"
+          >
+            <option value="5">5</option>
+            <option value="10">10</option>
+            <option value="25">25</option>
+            <option value="50">50</option>
+            <option value="100">All</option>
+          </select>
           <input
             type="text"
             placeholder="Search..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
-        
         </div>
         <div className="table-container">
           <table>
@@ -137,8 +337,8 @@ function PreOrdersHistory() {
               </tr>
             </thead>
             <tbody>
-              {sortedPreOrders.length > 0 ? (
-                sortedPreOrders.map((preOrder, index) => (
+              {paginatedPreOrders.length > 0 ? (
+                paginatedPreOrders.map((preOrder, index) => (
                   <tr key={index}>
                     <td>{preOrder.productId}</td>
                     <td>{preOrder.farmer}</td>
@@ -167,7 +367,7 @@ function PreOrdersHistory() {
             </tbody>
           </table>
         </div>
-
+        {renderPagination()}
         {selectedPreOrder && (
           <div className="modal-overlay">
             <div className="modal-content">

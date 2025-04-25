@@ -6,9 +6,191 @@ function OrdersHistory() {
   const [searchTerm, setSearchTerm] = useState('');
   const [sortConfig, setSortConfig] = useState({ key: 'productId', direction: 'asc' });
   const [selectedOrder, setSelectedOrder] = useState(null);
+  const [recordsPerPage, setRecordsPerPage] = useState(10);
+  const [currentPage, setCurrentPage] = useState(1);
 
   // Sample data for order history (with vegetables and dates)
   const [orders, setOrders] = useState([
+    {
+      productId: 'O201',
+      name: 'Rachel Adams',
+      order: 'Lettuce',
+      quantity: 5,
+      price: 2.00,
+      status: 'Delivered',
+      date: '2025-03-10',
+    },
+    {
+      productId: 'O202',
+      name: 'Ethan Brooks',
+      order: 'Cauliflower',
+      quantity: 3,
+      price: 3.50,
+      status: 'Delivered',
+      date: '2025-03-15',
+    },
+    {
+      productId: 'O203',
+      name: 'Olivia Carter',
+      order: 'Kale',
+      quantity: 6,
+      price: 2.75,
+      status: 'Cancelled',
+      date: '2025-04-01',
+    },
+    {
+      productId: 'O204',
+      name: 'Nathan Hayes',
+      order: 'Cabbage',
+      quantity: 4,
+      price: 2.25,
+      status: 'Delivered',
+      date: '2025-02-20',
+    },
+    {
+      productId: 'O205',
+      name: 'Mia Foster',
+      order: 'Radishes',
+      quantity: 7,
+      price: 1.80,
+      status: 'Cancelled',
+      date: '2025-03-25',
+    },
+    {
+      productId: 'O201',
+      name: 'Rachel Adams',
+      order: 'Lettuce',
+      quantity: 5,
+      price: 2.00,
+      status: 'Delivered',
+      date: '2025-03-10',
+    },
+    {
+      productId: 'O202',
+      name: 'Ethan Brooks',
+      order: 'Cauliflower',
+      quantity: 3,
+      price: 3.50,
+      status: 'Delivered',
+      date: '2025-03-15',
+    },
+    {
+      productId: 'O203',
+      name: 'Olivia Carter',
+      order: 'Kale',
+      quantity: 6,
+      price: 2.75,
+      status: 'Cancelled',
+      date: '2025-04-01',
+    },
+    {
+      productId: 'O204',
+      name: 'Nathan Hayes',
+      order: 'Cabbage',
+      quantity: 4,
+      price: 2.25,
+      status: 'Delivered',
+      date: '2025-02-20',
+    },
+    {
+      productId: 'O205',
+      name: 'Mia Foster',
+      order: 'Radishes',
+      quantity: 7,
+      price: 1.80,
+      status: 'Cancelled',
+      date: '2025-03-25',
+    },
+    {
+      productId: 'O201',
+      name: 'Rachel Adams',
+      order: 'Lettuce',
+      quantity: 5,
+      price: 2.00,
+      status: 'Delivered',
+      date: '2025-03-10',
+    },
+    {
+      productId: 'O202',
+      name: 'Ethan Brooks',
+      order: 'Cauliflower',
+      quantity: 3,
+      price: 3.50,
+      status: 'Delivered',
+      date: '2025-03-15',
+    },
+    {
+      productId: 'O203',
+      name: 'Olivia Carter',
+      order: 'Kale',
+      quantity: 6,
+      price: 2.75,
+      status: 'Cancelled',
+      date: '2025-04-01',
+    },
+    {
+      productId: 'O204',
+      name: 'Nathan Hayes',
+      order: 'Cabbage',
+      quantity: 4,
+      price: 2.25,
+      status: 'Delivered',
+      date: '2025-02-20',
+    },
+    {
+      productId: 'O205',
+      name: 'Mia Foster',
+      order: 'Radishes',
+      quantity: 7,
+      price: 1.80,
+      status: 'Cancelled',
+      date: '2025-03-25',
+    },
+    {
+      productId: 'O201',
+      name: 'Rachel Adams',
+      order: 'Lettuce',
+      quantity: 5,
+      price: 2.00,
+      status: 'Delivered',
+      date: '2025-03-10',
+    },
+    {
+      productId: 'O202',
+      name: 'Ethan Brooks',
+      order: 'Cauliflower',
+      quantity: 3,
+      price: 3.50,
+      status: 'Delivered',
+      date: '2025-03-15',
+    },
+    {
+      productId: 'O203',
+      name: 'Olivia Carter',
+      order: 'Kale',
+      quantity: 6,
+      price: 2.75,
+      status: 'Cancelled',
+      date: '2025-04-01',
+    },
+    {
+      productId: 'O204',
+      name: 'Nathan Hayes',
+      order: 'Cabbage',
+      quantity: 4,
+      price: 2.25,
+      status: 'Delivered',
+      date: '2025-02-20',
+    },
+    {
+      productId: 'O205',
+      name: 'Mia Foster',
+      order: 'Radishes',
+      quantity: 7,
+      price: 1.80,
+      status: 'Cancelled',
+      date: '2025-03-25',
+    },
     {
       productId: 'O201',
       name: 'Rachel Adams',
@@ -78,6 +260,11 @@ function OrdersHistory() {
     return 0;
   });
 
+  // Pagination logic
+  const totalPages = Math.ceil(sortedOrders.length / recordsPerPage);
+  const startIndex = (currentPage - 1) * recordsPerPage;
+  const paginatedOrders = sortedOrders.slice(startIndex, startIndex + recordsPerPage);
+
   const sortData = (key) => {
     const direction =
       sortConfig.key === key && sortConfig.direction === 'asc' ? 'desc' : 'asc';
@@ -92,7 +279,55 @@ function OrdersHistory() {
     setSelectedOrder(null);
   };
 
-  
+  const handleRecordsPerPageChange = (e) => {
+    const value = e.target.value === '100' ? sortedOrders.length : Number(e.target.value);
+    setRecordsPerPage(value);
+    setCurrentPage(1); // Reset to first page when changing records per page
+  };
+
+  const handlePageChange = (page) => {
+    if (page >= 1 && page <= totalPages) {
+      setCurrentPage(page);
+    }
+  };
+
+  const renderPagination = () => {
+    if (totalPages <= 1) return null;
+
+    const pageNumbers = [];
+    for (let i = 1; i <= totalPages; i++) {
+      pageNumbers.push(i);
+    }
+
+    return (
+      <div className="pagination">
+        <button
+          onClick={() => handlePageChange(currentPage - 1)}
+          disabled={currentPage === 1}
+        >
+          Previous
+        </button>
+        {pageNumbers.map((page) => (
+          <button
+            key={page}
+            onClick={() => handlePageChange(page)}
+            className={currentPage === page ? 'active' : ''}
+          >
+            {page}
+          </button>
+        ))}
+        <button
+          onClick={() => handlePageChange(currentPage + 1)}
+          disabled={currentPage === totalPages}
+        >
+          Next
+        </button>
+        <span>
+          Page {currentPage} of {totalPages} | Total Orders: {sortedOrders.length}
+        </span>
+      </div>
+    );
+  };
 
   return (
     <div className="dashboard">
@@ -100,13 +335,23 @@ function OrdersHistory() {
       <div className="main-content">
         <h1>ORDER HISTORY</h1>
         <div className="search-bar">
+          <select
+            value={recordsPerPage}
+            onChange={handleRecordsPerPageChange}
+            className="records-per-page"
+          >
+            <option value="5">5</option>
+            <option value="10">10</option>
+            <option value="25">25</option>
+            <option value="50">50</option>
+            <option value="100">All</option>
+          </select>
           <input
             type="text"
             placeholder="Search..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
-         
         </div>
         <div className="table-container">
           <table>
@@ -137,8 +382,8 @@ function OrdersHistory() {
               </tr>
             </thead>
             <tbody>
-              {sortedOrders.length > 0 ? (
-                sortedOrders.map((order, index) => (
+              {paginatedOrders.length > 0 ? (
+                paginatedOrders.map((order, index) => (
                   <tr key={index}>
                     <td>{order.productId}</td>
                     <td>{order.name}</td>
@@ -167,7 +412,7 @@ function OrdersHistory() {
             </tbody>
           </table>
         </div>
-
+        {renderPagination()}
         {selectedOrder && (
           <div className="modal-overlay">
             <div className="modal-content">

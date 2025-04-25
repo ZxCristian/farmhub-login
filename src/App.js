@@ -7,6 +7,7 @@ import PendingMembers from './components/PendingMembers';
 import PendingOrders from './components/PendingOrders';
 import PendingPreOrders from './components/PendingPreOrders';
 import Members from './components/Members';
+import Customers from './components/Customers';
 import ActivePreOrders from './components/ActivePreOrders';
 import PreOrdersHistory from './components/PreOrdersHistory';
 import OrdersHistory from './components/OrdersHistory';
@@ -60,6 +61,14 @@ function App() {
             element={
               <ProtectedRoute>
                 <Members />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/customers"
+            element={
+              <ProtectedRoute>
+                <Customers />
               </ProtectedRoute>
             }
           />
