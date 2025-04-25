@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import Sidebar from './Sidebar';
 import Modal from './Modal';
 import '../Dashboard.css';
@@ -17,7 +17,7 @@ function Customers() {
   const [revokeReason, setRevokeReason] = useState('');
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
   const [viewIndex, setViewIndex] = useState(null);
-  const [timers, setTimers] = useState({});
+  const timerRef = useRef({});
   const [recordsPerPage, setRecordsPerPage] = useState(25);
   const [currentPage, setCurrentPage] = useState(1);
 
@@ -138,19 +138,16 @@ function Customers() {
             updatedCustomers[index].suspensionReason = null;
             updatedCustomers[index].revokeReason = null;
             setCustomers(updatedCustomers);
-            setTimers((prev) => {
-              const newTimers = { ...prev };
-              delete newTimers[index];
-              return newTimers;
-            });
+            delete timerRef.current[index];
           }, timeLeft);
-          setTimers((prev) => ({ ...prev, [index]: timer }));
+          timerRef.current[index] = timer;
         }
       }
     });
-  
+
     return () => {
-      Object.values(timers).forEach((timer) => clearTimeout(timer));
+      Object.values(timerRef.current).forEach((timer) => clearTimeout(timer));
+      timerRef.current = {};
     };
   }, [customers]);
 
@@ -305,13 +302,9 @@ function Customers() {
         updatedCustomers[customerIndex].suspensionReason = null;
         updatedCustomers[customerIndex].revokeReason = null;
         setCustomers(updatedCustomers);
-        setTimers((prev) => {
-          const newTimers = { ...prev };
-          delete newTimers[customerIndex];
-          return newTimers;
-        });
+        delete timerRef.current[customerIndex];
       }, durationMs);
-      setTimers((prev) => ({ ...prev, [customerIndex]: timer }));
+      timerRef.current[customerIndex] = timer;
 
       closeSuspendModal();
     } catch (error) {
@@ -344,13 +337,9 @@ function Customers() {
       updatedCustomers[customerIndex].revokeReason = revokeReason;
       setCustomers(updatedCustomers);
 
-      if (timers[customerIndex]) {
-        clearTimeout(timers[customerIndex]);
-        setTimers((prev) => {
-          const newTimers = { ...prev };
-          delete newTimers[customerIndex];
-          return newTimers;
-        });
+      if (timerRef.current[customerIndex]) {
+        clearTimeout(timerRef.current[customerIndex]);
+        delete timerRef.current[customerIndex];
       }
 
       closeRevokeModal();
@@ -379,13 +368,9 @@ function Customers() {
         updatedCustomers[customerIndex].revokeReason = null;
         setCustomers(updatedCustomers);
 
-        if (timers[customerIndex]) {
-          clearTimeout(timers[customerIndex]);
-          setTimers((prev) => {
-            const newTimers = { ...prev };
-            delete newTimers[customerIndex];
-            return newTimers;
-          });
+        if (timerRef.current[customerIndex]) {
+          clearTimeout(timerRef.current[customerIndex]);
+          delete timerRef.current[customerIndex];
         }
       } catch (error) {
         console.error('Error reactivating customer:', error);
@@ -771,7 +756,6 @@ function Customers() {
       >
         {viewIndex !== null && paginatedCustomers[viewIndex] ? (
           <div className="view-details">
-             <p><strong>User ID:</strong> {paginatedCustomers[viewIndex].userId}</p>
             <p><strong>Name:</strong> {paginatedCustomers[viewIndex].name}</p>
             <p><strong>Address:</strong> {paginatedCustomers[viewIndex].address}</p>
             <p><strong>Contact Number:</strong> {paginatedCustomers[viewIndex].contactNumber}</p>

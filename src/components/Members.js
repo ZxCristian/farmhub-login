@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import Sidebar from './Sidebar';
 import Modal from './Modal';
 import '../Dashboard.css';
@@ -17,7 +17,7 @@ function Members() {
   const [revokeReason, setRevokeReason] = useState('');
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
   const [viewIndex, setViewIndex] = useState(null);
-  const [timers, setTimers] = useState({});
+  const timerRef = useRef({});
   const [recordsPerPage, setRecordsPerPage] = useState(25);
   const [currentPage, setCurrentPage] = useState(1);
 
@@ -78,11 +78,9 @@ function Members() {
     try {
       if (savedMembers) {
         const parsedMembers = JSON.parse(savedMembers);
-        // Ensure all members have a unique userId
         const usedIds = new Set();
         return parsedMembers.map((member, index) => {
           let userId = member.userId !== undefined ? Number(member.userId) : index + 1;
-          // Ensure uniqueness
           while (usedIds.has(userId)) {
             userId = Math.max(...usedIds) + 1;
           }
@@ -126,7 +124,7 @@ function Members() {
           updatedMembers[index].suspensionDuration = null;
           updatedMembers[index].suspensionReason = null;
           updatedMembers[index].revokeReason = null;
-          setMembers(updatedMembers); // Fixed typo from set IMPACTMembers
+          setMembers(updatedMembers);
         } else {
           const timeLeft = suspensionEnd - now;
           const timer = setTimeout(() => {
@@ -137,23 +135,19 @@ function Members() {
             updatedMembers[index].suspensionReason = null;
             updatedMembers[index].revokeReason = null;
             setMembers(updatedMembers);
-            setTimers((prev) => {
-              const newTimers = { ...prev };
-              delete newTimers[index];
-              return newTimers;
-            });
+            delete timerRef.current[index];
           }, timeLeft);
-          setTimers((prev) => ({ ...prev, [index]: timer }));
+          timerRef.current[index] = timer;
         }
       }
     });
 
     return () => {
-      Object.values(timers).forEach((timer) => clearTimeout(timer));
+      Object.values(timerRef.current).forEach((timer) => clearTimeout(timer));
+      timerRef.current = {};
     };
   }, [members]);
 
-  // Debounce search input
   const handleSearchChange = useCallback((value) => {
     let timeout;
     return () => {
@@ -304,13 +298,9 @@ function Members() {
         updatedMembers[memberIndex].suspensionReason = null;
         updatedMembers[memberIndex].revokeReason = null;
         setMembers(updatedMembers);
-        setTimers((prev) => {
-          const newTimers = { ...prev };
-          delete newTimers[memberIndex];
-          return newTimers;
-        });
+        delete timerRef.current[memberIndex];
       }, durationMs);
-      setTimers((prev) => ({ ...prev, [memberIndex]: timer }));
+      timerRef.current[memberIndex] = timer;
 
       closeSuspendModal();
     } catch (error) {
@@ -343,13 +333,9 @@ function Members() {
       updatedMembers[memberIndex].revokeReason = revokeReason;
       setMembers(updatedMembers);
 
-      if (timers[memberIndex]) {
-        clearTimeout(timers[memberIndex]);
-        setTimers((prev) => {
-          const newTimers = { ...prev };
-          delete newTimers[memberIndex];
-          return newTimers;
-        });
+      if (timerRef.current[memberIndex]) {
+        clearTimeout(timerRef.current[memberIndex]);
+        delete timerRef.current[memberIndex];
       }
 
       closeRevokeModal();
@@ -378,13 +364,9 @@ function Members() {
         updatedMembers[memberIndex].revokeReason = null;
         setMembers(updatedMembers);
 
-        if (timers[memberIndex]) {
-          clearTimeout(timers[memberIndex]);
-          setTimers((prev) => {
-            const newTimers = { ...prev };
-            delete newTimers[memberIndex];
-            return newTimers;
-          });
+        if (timerRef.current[memberIndex]) {
+          clearTimeout(timerRef.current[memberIndex]);
+          delete timerRef.current[memberIndex];
         }
       } catch (error) {
         console.error('Error reactivating member:', error);
@@ -407,7 +389,12 @@ function Members() {
     }
   };
 
-  
+  const handleResetData = () => {
+    if (window.confirm('Are you sure you want to reset all member data to default?')) {
+      localStorage.removeItem('members');
+      setMembers(defaultMembers);
+    }
+  };
 
   const renderPagination = () => {
     if (totalPages <= 1) return null;
@@ -511,6 +498,9 @@ function Members() {
             onChange={(e) => handleSearchChange(e.target.value)()}
           />
         </div>
+        <button className="btn-reset" onClick={handleResetData}>
+          Reset Data
+        </button>
         <div className="table-container">
           <table>
             <thead>
@@ -553,6 +543,7 @@ function Members() {
                               className="action-btn suspend"
                               onClick={() => openSuspendModal(memberIndex)}
                               disabled={loadingIndex === memberIndex}
+                              aria-label={`Suspend ${member.name}`}
                             >
                               {loadingIndex === memberIndex ? (
                                 <span>
@@ -566,6 +557,7 @@ function Members() {
                               className="action-btn revoke"
                               onClick={() => openRevokeModal(memberIndex)}
                               disabled={loadingIndex === memberIndex}
+                              aria-label={`Revoke ${member.name}`}
                             >
                               {loadingIndex === memberIndex ? (
                                 <span>
@@ -582,6 +574,7 @@ function Members() {
                             className="action-btn reactivate"
                             onClick={() => handleReactivate(memberIndex)}
                             disabled={loadingIndex === memberIndex}
+                            aria-label={`Reactivate ${member.name}`}
                           >
                             {loadingIndex === memberIndex ? (
                               <span>
@@ -596,6 +589,7 @@ function Members() {
                           className="action-btn view"
                           onClick={() => openViewModal(memberIndex)}
                           disabled={loadingIndex === memberIndex}
+                          aria-label={`View details for ${member.name}`}
                         >
                           View
                         </button>
@@ -760,7 +754,7 @@ function Members() {
       >
         {viewIndex !== null && paginatedMembers[viewIndex] ? (
           <div className="view-details">
-             <p><strong>User ID:</strong> {paginatedMembers[viewIndex].userId}</p>
+            <p><strong>User ID:</strong> {paginatedMembers[viewIndex].userId}</p>
             <p><strong>Name:</strong> {paginatedMembers[viewIndex].name}</p>
             <p><strong>Address:</strong> {paginatedMembers[viewIndex].address}</p>
             <p><strong>Contact Number:</strong> {paginatedMembers[viewIndex].contactNumber}</p>
