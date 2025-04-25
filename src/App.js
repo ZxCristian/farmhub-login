@@ -1,5 +1,5 @@
 import React, { useContext } from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { AuthProvider, AuthContext } from './context/AuthContext';
 import Login from './components/Login';
 import Dashboard from './components/Dashboard';
@@ -15,15 +15,28 @@ import './App.css';
 
 function ProtectedRoute({ children }) {
   const { isLoggedIn } = useContext(AuthContext);
-  return isLoggedIn ? children : <Navigate to="/" />;
+  const location = useLocation();
+  return isLoggedIn ? children : <Navigate to="/" state={{ from: location }} replace />;
+}
+
+function PublicRoute({ children }) {
+  const { isLoggedIn } = useContext(AuthContext);
+  return isLoggedIn ? <Navigate to="/dashboard" replace /> : children;
 }
 
 function App() {
   return (
     <Router>
-      <AuthProvider> {/* Move AuthProvider inside Router */}
+      <AuthProvider>
         <Routes>
-          <Route path="/" element={<Login />} />
+          <Route
+            path="/"
+            element={
+              <PublicRoute>
+                <Login />
+              </PublicRoute>
+            }
+          />
           <Route
             path="/dashboard"
             element={
