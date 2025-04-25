@@ -18,7 +18,7 @@ function Members() {
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
   const [viewIndex, setViewIndex] = useState(null);
   const timerRef = useRef({});
-  const [recordsPerPage, setRecordsPerPage] = useState(25);
+  const [recordsPerPage, setRecordsPerPage] = useState(10);
   const [currentPage, setCurrentPage] = useState(1);
 
   const defaultMembers = [
@@ -389,12 +389,7 @@ function Members() {
     }
   };
 
-  const handleResetData = () => {
-    if (window.confirm('Are you sure you want to reset all member data to default?')) {
-      localStorage.removeItem('members');
-      setMembers(defaultMembers);
-    }
-  };
+  
 
   const renderPagination = () => {
     if (totalPages <= 1) return null;
@@ -498,9 +493,7 @@ function Members() {
             onChange={(e) => handleSearchChange(e.target.value)()}
           />
         </div>
-        <button className="btn-reset" onClick={handleResetData}>
-          Reset Data
-        </button>
+       
         <div className="table-container">
           <table>
             <thead>

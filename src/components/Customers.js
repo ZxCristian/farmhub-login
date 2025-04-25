@@ -18,7 +18,7 @@ function Customers() {
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
   const [viewIndex, setViewIndex] = useState(null);
   const timerRef = useRef({});
-  const [recordsPerPage, setRecordsPerPage] = useState(25);
+  const [recordsPerPage, setRecordsPerPage] = useState(10);
   const [currentPage, setCurrentPage] = useState(1);
 
   const defaultCustomers = [
@@ -393,12 +393,7 @@ function Customers() {
     }
   };
 
-  const handleResetData = () => {
-    if (window.confirm('Are you sure you want to reset all customer data to default?')) {
-      localStorage.removeItem('customers');
-      setCustomers(defaultCustomers);
-    }
-  };
+  
 
   const renderPagination = () => {
     if (totalPages <= 1) return null;
@@ -500,9 +495,7 @@ function Customers() {
             onChange={(e) => handleSearchChange(e.target.value)()}
           />
         </div>
-        <button className="btn-reset" onClick={handleResetData}>
-          Reset Data
-        </button>
+       
         <div className="table-container">
           <table>
             <thead>
@@ -756,6 +749,7 @@ function Customers() {
       >
         {viewIndex !== null && paginatedCustomers[viewIndex] ? (
           <div className="view-details">
+            <p><strong>User ID:</strong> {paginatedCustomers[viewIndex].userId}</p>
             <p><strong>Name:</strong> {paginatedCustomers[viewIndex].name}</p>
             <p><strong>Address:</strong> {paginatedCustomers[viewIndex].address}</p>
             <p><strong>Contact Number:</strong> {paginatedCustomers[viewIndex].contactNumber}</p>
