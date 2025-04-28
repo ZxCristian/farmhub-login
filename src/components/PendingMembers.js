@@ -15,12 +15,12 @@ function PendingMembers() {
   };
 
   // Sample data for pending members
-  const [members, setMembers] = useState([
-    { name: 'John Doe', email: 'john.doe@example.com', phone: '123-456-7890', status: 'Pending' },
-    { name: 'Jane Smith', email: 'jane.smith@example.com', phone: '234-567-8901', status: 'Pending' },
-    { name: 'Alice Johnson', email: 'alice.j@example.com', phone: '345-678-9012', status: 'Pending' },
-    // Add more sample data as needed
-  ]);
+  const [members, setMembers] = useState(Array.from({ length: 10000 }, (_, i) => ({
+    name: `Member ${i + 1}`,
+    email: `member${i + 1}@example.com`,
+    phone: `123-456-78${String(i).padStart(2, '0')}`,
+    status: 'Pending',
+  })));
 
   // Filter members to only show Pending status
   const filteredMembers = members.filter(
@@ -42,7 +42,7 @@ function PendingMembers() {
   });
 
   // Pagination logic
-  const totalPages = Math.ceil(sortedMembers.length / recordsPerPage);
+  const totalPages = Math.max(1, Math.ceil(sortedMembers.length / recordsPerPage));
   const startIndex = (currentPage - 1) * recordsPerPage;
   const paginatedMembers = sortedMembers.slice(startIndex, startIndex + recordsPerPage);
 
@@ -68,6 +68,10 @@ function PendingMembers() {
         // In a real app, you might send the member with numericId to an API
         console.log(`Approved member ${member.name} with ID ${numericId}`);
         setMembers(updatedMembers);
+        // Adjust currentPage if the current page becomes empty
+        if (paginatedMembers.length === 1 && currentPage > 1) {
+          setCurrentPage(currentPage - 1);
+        }
       } catch (error) {
         console.error('Error approving member:', error);
         alert('Failed to approve member. Please try again.');
@@ -89,6 +93,10 @@ function PendingMembers() {
           (m) => !(m.name === member.name && m.email === member.email)
         );
         setMembers(updatedMembers);
+        // Adjust currentPage if the current page becomes empty
+        if (paginatedMembers.length === 1 && currentPage > 1) {
+          setCurrentPage(currentPage - 1);
+        }
       } catch (error) {
         console.error('Error rejecting member:', error);
         alert('Failed to reject member. Please try again.');
@@ -114,18 +122,35 @@ function PendingMembers() {
     if (totalPages <= 1) return null;
 
     const pageNumbers = [];
-    for (let i = 1; i <= totalPages; i++) {
+    const maxPagesToShow = 5; // Show current page ± 2
+    const halfRange = Math.floor(maxPagesToShow / 2);
+    let startPage = Math.max(1, currentPage - halfRange);
+    let endPage = Math.min(totalPages, startPage + maxPagesToShow - 1);
+
+    // Adjust startPage if endPage is at the totalPages
+    if (endPage === totalPages) {
+      startPage = Math.max(1, endPage - maxPagesToShow + 1);
+    }
+
+    for (let i = startPage; i <= endPage; i++) {
       pageNumbers.push(i);
     }
 
     return (
       <div className="pagination">
         <button
+          onClick={() => handlePageChange(1)}
+          disabled={currentPage === 1}
+        >
+          First
+        </button>
+        <button
           onClick={() => handlePageChange(currentPage - 1)}
           disabled={currentPage === 1}
         >
           Previous
         </button>
+        {startPage > 1 && <span>...</span>}
         {pageNumbers.map((page) => (
           <button
             key={page}
@@ -135,6 +160,13 @@ function PendingMembers() {
             {page}
           </button>
         ))}
+        {endPage < totalPages && <span>...</span>}
+        <button
+          onClick={() => handlePageChange(totalPages)}
+          disabled={currentPage === totalPages}
+        >
+          Last
+        </button>
         <button
           onClick={() => handlePageChange(currentPage + 1)}
           disabled={currentPage === totalPages}
@@ -185,9 +217,7 @@ function PendingMembers() {
                 <th onClick={() => sortData('phone')} className={sortConfig.key === 'phone' ? 'sorted' : ''}>
                   Phone {sortConfig.key === 'phone' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
                 </th>
-                <th onClick={() => sortData('status')} className={sortConfig.key === 'status' ? 'sorted' : ''}>
-                  Status {sortConfig.key === 'status' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
-                </th>
+               
                 <th>Actions</th>
               </tr>
             </thead>
@@ -198,7 +228,7 @@ function PendingMembers() {
                     <td>{member.name}</td>
                     <td>{member.email}</td>
                     <td>{member.phone}</td>
-                    <td>{member.status}</td>
+                   
                     <td>
                       <button
                         className="action-btn approve"

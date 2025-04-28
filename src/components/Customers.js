@@ -1,11 +1,99 @@
-import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useMemo, useRef, memo } from 'react';
 import * as XLSX from 'xlsx';
 import Sidebar from './Sidebar';
 import Modal from './Modal';
 import '../Dashboard.css';
 
+// Custom debounce hook
+function useDebounce(value, delay) {
+  const [debouncedValue, setDebouncedValue] = useState(value);
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedValue(value);
+    }, delay);
+
+    return () => clearTimeout(handler);
+  }, [value, delay]);
+
+  return debouncedValue;
+}
+
+// Memoized CustomerRow component
+const CustomerRow = memo(({ customer, index, loadingIndex, openSuspendModal, openRevokeModal, handleReactivate, openViewModal }) => {
+  return (
+    <tr className={`status-${customer.status.toLowerCase()}`}>
+      <td>{customer.name}</td>
+      <td>{customer.address}</td>
+      <td>{customer.contactNumber}</td>
+      <td>{customer.email}</td>
+      <td>{customer.status}</td>
+      <td>{customer.suspensionReason || customer.revokeReason || '-'}</td>
+      <td>
+        {customer.status === 'Active' && (
+          <>
+            <button
+              className="action-btn suspend"
+              onClick={() => openSuspendModal(index)}
+              disabled={loadingIndex === index}
+              aria-label={`Suspend ${customer.name}`}
+            >
+              {loadingIndex === index ? (
+                <span>
+                  <span className="spinner"></span> Suspending...
+                </span>
+              ) : (
+                'Suspend'
+              )}
+            </button>
+            <button
+              className="action-btn revoke"
+              onClick={() => openRevokeModal(index)}
+              disabled={loadingIndex === index}
+              aria-label={`Revoke ${customer.name}`}
+            >
+              {loadingIndex === index ? (
+                <span>
+                  <span className="spinner"></span> Revoking...
+                </span>
+              ) : (
+                'Revoke'
+              )}
+            </button>
+          </>
+        )}
+        {customer.status === 'Suspended' && (
+          <button
+            className="action-btn reactivate"
+            onClick={() => handleReactivate(index)}
+            disabled={loadingIndex === index}
+            aria-label={`Reactivate ${customer.name}`}
+          >
+            {loadingIndex === index ? (
+              <span>
+                <span className="spinner"></span> Reactivating...
+              </span>
+            ) : (
+              'Reactivate'
+            )}
+          </button>
+        )}
+        <button
+          className="action-btn view"
+          onClick={() => openViewModal(index)}
+          disabled={loadingIndex === index}
+          aria-label={`View details for ${customer.name}`}
+        >
+          View
+        </button>
+      </td>
+    </tr>
+  );
+});
+
 function Customers() {
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchInput, setSearchInput] = useState('');
+  const debouncedSearchTerm = useDebounce(searchInput, 150);
   const [statusFilter, setStatusFilter] = useState('All');
   const [sortConfig, setSortConfig] = useState({ key: 'name', direction: 'asc' });
   const [loadingIndex, setLoadingIndex] = useState(null);
@@ -22,88 +110,20 @@ function Customers() {
   const [recordsPerPage, setRecordsPerPage] = useState(10);
   const [currentPage, setCurrentPage] = useState(1);
 
-  const defaultCustomers = [
-    { userId: 1, name: "Alice Carter", address: "200 High St, Springfield", contactNumber: "555-200-0200", email: "alice.carter0@example.com", status: "Active", suspensionStart: null, suspensionDuration: null, suspensionReason: null, revokeReason: null },
-    { userId: 2, name: "Bob Davis", address: "201 Elm Ave, Rivertown", contactNumber: "555-201-0201", email: "bob.davis1@example.com", status: "Active", suspensionStart: null, suspensionDuration: null, suspensionReason: null, revokeReason: null },
-    { userId: 3, name: "Clara Evans", address: "202 Pine Rd, Lakeside", contactNumber: "555-202-0202", email: "clara.evans2@example.com", status: "Active", suspensionStart: null, suspensionDuration: null, suspensionReason: null, revokeReason: null },
-    { userId: 4, name: "Daniel Foster", address: "203 Maple Dr, Hillview", contactNumber: "555-203-0203", email: "daniel.foster3@example.com", status: "Active", suspensionStart: null, suspensionDuration: null, suspensionReason: null, revokeReason: null },
-    { userId: 5, name: "Emma Gray", address: "204 Birch Ln, Sunnyvale", contactNumber: "555-204-0204", email: "emma.gray4@example.com", status: "Active", suspensionStart: null, suspensionDuration: null, suspensionReason: null, revokeReason: null },
-    { userId: 6, name: "Frank Hughes", address: "205 Oak St, Brookfield", contactNumber: "555-205-0205", email: "frank.hughes5@example.com", status: "Active", suspensionStart: null, suspensionDuration: null, suspensionReason: null, revokeReason: null },
-    { userId: 7, name: "Grace Irwin", address: "206 Cedar St, Oakville", contactNumber: "555-206-0206", email: "grace.irwin6@example.com", status: "Active", suspensionStart: null, suspensionDuration: null, suspensionReason: null, revokeReason: null },
-    { userId: 8, name: "Henry Jones", address: "207 Walnut St, Riverbend", contactNumber: "555-207-0207", email: "henry.jones7@example.com", status: "Active", suspensionStart: null, suspensionDuration: null, suspensionReason: null, revokeReason: null },
-    { userId: 9, name: "Isabel Kelly", address: "208 Chestnut Ave, Greenwood", contactNumber: "555-208-0208", email: "isabel.kelly8@example.com", status: "Active", suspensionStart: null, suspensionDuration: null, suspensionReason: null, revokeReason: null },
-    { userId: 10, name: "Jack Lee", address: "209 Aspen Rd, Silverlake", contactNumber: "555-209-0209", email: "jack.lee9@example.com", status: "Active", suspensionStart: null, suspensionDuration: null, suspensionReason: null, revokeReason: null },
-    { userId: 11, name: "Kelly Martin", address: "210 Redwood Dr, Pinehill", contactNumber: "555-210-0210", email: "kelly.martin10@example.com", status: "Active", suspensionStart: null, suspensionDuration: null, suspensionReason: null, revokeReason: null },
-    { userId: 12, name: "Liam Nelson", address: "211 Spruce St, Fairview", contactNumber: "555-211-0211", email: "liam.nelson11@example.com", status: "Active", suspensionStart: null, suspensionDuration: null, suspensionReason: null, revokeReason: null },
-    { userId: 13, name: "Mia Owens", address: "212 Sycamore St, Forestville", contactNumber: "555-212-0212", email: "mia.owens12@example.com", status: "Active", suspensionStart: null, suspensionDuration: null, suspensionReason: null, revokeReason: null },
-    { userId: 14, name: "Noah Parker", address: "213 Poplar Ave, Hillcrest", contactNumber: "555-213-0213", email: "noah.parker13@example.com", status: "Active", suspensionStart: null, suspensionDuration: null, suspensionReason: null, revokeReason: null },
-    { userId: 15, name: "Olivia Quinn", address: "214 Willow Dr, Riverstone", contactNumber: "555-214-0214", email: "olivia.quinn14@example.com", status: "Active", suspensionStart: null, suspensionDuration: null, suspensionReason: null, revokeReason: null },
-    { userId: 16, name: "Peter Reed", address: "215 Fir Ln, Lakeview", contactNumber: "555-215-0215", email: "peter.reed15@example.com", status: "Active", suspensionStart: null, suspensionDuration: null, suspensionReason: null, revokeReason: null },
-    { userId: 17, name: "Quinn Scott", address: "216 Beech St, Glenwood", contactNumber: "555-216-0216", email: "quinn.scott16@example.com", status: "Active", suspensionStart: null, suspensionDuration: null, suspensionReason: null, revokeReason: null },
-    { userId: 18, name: "Rachel Turner", address: "217 Alder Rd, Meadowbrook", contactNumber: "555-217-0217", email: "rachel.turner17@example.com", status: "Active", suspensionStart: null, suspensionDuration: null, suspensionReason: null, revokeReason: null },
-    { userId: 19, name: "Samuel Vance", address: "218 Hickory St, Greenfield", contactNumber: "555-218-0218", email: "samuel.vance18@example.com", status: "Active", suspensionStart: null, suspensionDuration: null, suspensionReason: null, revokeReason: null },
-    { userId: 20, name: "Tara Wells", address: "219 Dogwood Ln, Hilldale", contactNumber: "555-219-0219", email: "tara.wells19@example.com", status: "Active", suspensionStart: null, suspensionDuration: null, suspensionReason: null, revokeReason: null },
-    { userId: 21, name: "Ursula Young", address: "220 Magnolia Ave, Stonebridge", contactNumber: "555-220-0220", email: "ursula.young20@example.com", status: "Active", suspensionStart: null, suspensionDuration: null, suspensionReason: null, revokeReason: null },
-    { userId: 22, name: "Victor Zane", address: "221 Locust Rd, Maplewood", contactNumber: "555-221-0221", email: "victor.zane21@example.com", status: "Active", suspensionStart: null, suspensionDuration: null, suspensionReason: null, revokeReason: null },
-    { userId: 23, name: "Wendy Adams", address: "222 Laurel St, Rosewood", contactNumber: "555-222-0222", email: "wendy.adams22@example.com", status: "Active", suspensionStart: null, suspensionDuration: null, suspensionReason: null, revokeReason: null },
-    { userId: 24, name: "Xavier Brooks", address: "223 Palm Ave, Creekside", contactNumber: "555-223-0223", email: "xavier.brooks23@example.com", status: "Active", suspensionStart: null, suspensionDuration: null, suspensionReason: null, revokeReason: null },
-    { userId: 25, name: "Yvonne Carter", address: "224 Cypress Rd, Cedarhill", contactNumber: "555-224-0224", email: "yvonne.carter24@example.com", status: "Active", suspensionStart: null, suspensionDuration: null, suspensionReason: null, revokeReason: null },
-    { userId: 26, name: "Zachary Dunn", address: "225 Sequoia Dr, Birchwood", contactNumber: "555-225-0225", email: "zachary.dunn25@example.com", status: "Active", suspensionStart: null, suspensionDuration: null, suspensionReason: null, revokeReason: null },
-    { userId: 27, name: "Amelia Evans", address: "226 Maple St, Westfield", contactNumber: "555-226-0226", email: "amelia.evans26@example.com", status: "Active", suspensionStart: null, suspensionDuration: null, suspensionReason: null, revokeReason: null },
-    { userId: 28, name: "Ben Foster", address: "227 Palm Dr, Eastview", contactNumber: "555-227-0227", email: "ben.foster27@example.com", status: "Active", suspensionStart: null, suspensionDuration: null, suspensionReason: null, revokeReason: null },
-    { userId: 29, name: "Chloe Gray", address: "228 Cedar Ave, Oakridge", contactNumber: "555-228-0228", email: "chloe.gray28@example.com", status: "Active", suspensionStart: null, suspensionDuration: null, suspensionReason: null, revokeReason: null },
-    { userId: 30, name: "Dylan Hughes", address: "229 Pine Ln, Meadowlark", contactNumber: "555-229-0229", email: "dylan.hughes29@example.com", status: "Active", suspensionStart: null, suspensionDuration: null, suspensionReason: null, revokeReason: null },
-    { userId: 31, name: "Ella Irwin", address: "230 Ash Rd, Foresthill", contactNumber: "555-230-0230", email: "ella.irwin30@example.com", status: "Active", suspensionStart: null, suspensionDuration: null, suspensionReason: null, revokeReason: null },
-    { userId: 32, name: "Finn Jones", address: "231 Cherry Dr, Bayview", contactNumber: "555-231-0231", email: "finn.jones31@example.com", status: "Active", suspensionStart: null, suspensionDuration: null, suspensionReason: null, revokeReason: null },
-    { userId: 33, name: "Gina Kelly", address: "232 Oak Ln, Greenridge", contactNumber: "555-232-0232", email: "gina.kelly32@example.com", status: "Active", suspensionStart: null, suspensionDuration: null, suspensionReason: null, revokeReason: null },
-    { userId: 34, name: "Hank Lee", address: "233 Poplar Rd, Hillbrook", contactNumber: "555-233-0233", email: "hank.lee33@example.com", status: "Active", suspensionStart: null, suspensionDuration: null, suspensionReason: null, revokeReason: null },
-    { userId: 35, name: "Ivy Martin", address: "234 Walnut Dr, Rivergrove", contactNumber: "555-234-0234", email: "ivy.martin34@example.com", status: "Active", suspensionStart: null, suspensionDuration: null, suspensionReason: null, revokeReason: null },
-    { userId: 36, name: "Jade Nelson", address: "235 Elm Ln, Cedarpark", contactNumber: "555-235-0235", email: "jade.nelson35@example.com", status: "Active", suspensionStart: null, suspensionDuration: null, suspensionReason: null, revokeReason: null },
-    { userId: 37, name: "Kyle Owens", address: "236 Pine Ave, Sunnyhill", contactNumber: "555-236-0236", email: "kyle.owens36@example.com", status: "Active", suspensionStart: null, suspensionDuration: null, suspensionReason: null, revokeReason: null },
-    { userId: 38, name: "Lily Parker", address: "237 Spruce Rd, Maplepark", contactNumber: "555-237-0237", email: "lily.parker37@example.com", status: "Active", suspensionStart: null, suspensionDuration: null, suspensionReason: null, revokeReason: null },
-    { userId: 39, name: "Mason Quinn", address: "238 Beech St, Lakepark", contactNumber: "555-238-0238", email: "mason.quinn38@example.com", status: "Active", suspensionStart: null, suspensionDuration: null, suspensionReason: null, revokeReason: null },
-    { userId: 40, name: "Nora Reed", address: "239 Redwood Ln, Grovefield", contactNumber: "555-239-0239", email: "nora.reed39@example.com", status: "Active", suspensionStart: null, suspensionDuration: null, suspensionReason: null, revokeReason: null },
-    { userId: 41, name: "Owen Scott", address: "240 Fir Rd, Springbrook", contactNumber: "555-240-0240", email: "owen.scott40@example.com", status: "Active", suspensionStart: null, suspensionDuration: null, suspensionReason: null, revokeReason: null },
-    { userId: 42, name: "Piper Turner", address: "241 Sycamore Dr, Evergreen", contactNumber: "555-241-0241", email: "piper.turner41@example.com", status: "Active", suspensionStart: null, suspensionDuration: null, suspensionReason: null, revokeReason: null },
-    { userId: 43, name: "Quincy Vance", address: "242 Locust Ln, Riverdale", contactNumber: "555-242-0242", email: "quincy.vance42@example.com", status: "Active", suspensionStart: null, suspensionDuration: null, suspensionReason: null, revokeReason: null },
-    { userId: 44, name: "Rose Wells", address: "243 Laurel Rd, Woodside", contactNumber: "555-243-0243", email: "rose.wells43@example.com", status: "Active", suspensionStart: null, suspensionDuration: null, suspensionReason: null, revokeReason: null },
-    { userId: 45, name: "Seth Young", address: "244 Hickory Ave, Brookside", contactNumber: "555-244-0244", email: "seth.young44@example.com", status: "Active", suspensionStart: null, suspensionDuration: null, suspensionReason: null, revokeReason: null },
-    { userId: 46, name: "Tina Zane", address: "245 Magnolia Ln, Timberlake", contactNumber: "555-245-0245", email: "tina.zane45@example.com", status: "Active", suspensionStart: null, suspensionDuration: null, suspensionReason: null, revokeReason: null },
-    { userId: 47, name: "Ulysses Adams", address: "246 Cherry St, Fairbrook", contactNumber: "555-246-0246", email: "ulysses.adams46@example.com", status: "Active", suspensionStart: null, suspensionDuration: null, suspensionReason: null, revokeReason: null },
-    { userId: 48, name: "Vera Brooks", address: "247 Dogwood Rd, Redwood", contactNumber: "555-247-0247", email: "vera.brooks47@example.com", status: "Active", suspensionStart: null, suspensionDuration: null, suspensionReason: null, revokeReason: null },
-    { userId: 49, name: "Wyatt Carter", address: "248 Chestnut Dr, Oakmeadow", contactNumber: "555-248-0248", email: "wyatt.carter48@example.com", status: "Active", suspensionStart: null, suspensionDuration: null, suspensionReason: null, revokeReason: null },
-    { userId: 50, name: "Zoe Dunn", address: "249 Palm Ln, Springhill", contactNumber: "555-249-0249", email: "zoe.dunn49@example.com", status: "Active", suspensionStart: null, suspensionDuration: null, suspensionReason: null, revokeReason: null },
-  ];
+  const defaultCustomers = Array.from({ length: 1000 }, (_, i) => ({
+    userId: i + 1,
+    name: `Customer ${i + 1}`,
+    address: `${100 + i} Example St, City ${i + 1}`,
+    contactNumber: `555-${100 + i}-${String(i).padStart(4, '0')}`,
+    email: `customer${i}@example.com`,
+    status: "Active",
+    suspensionStart: null,
+    suspensionDuration: null,
+    suspensionReason: null,
+    revokeReason: null,
+  }));
 
-  const [customers, setCustomers] = useState(() => {
-    const savedCustomers = localStorage.getItem('customers');
-    try {
-      if (savedCustomers) {
-        const parsedCustomers = JSON.parse(savedCustomers);
-        const usedIds = new Set();
-        return parsedCustomers.map((customer, index) => {
-          let userId = customer.userId !== undefined ? Number(customer.userId) : index + 1;
-          while (usedIds.has(userId)) {
-            userId = Math.max(...usedIds) + 1;
-          }
-          usedIds.add(userId);
-          return { ...customer, userId };
-        });
-      }
-      return defaultCustomers;
-    } catch (error) {
-      console.error('Error parsing localStorage customers:', error);
-      return defaultCustomers;
-    }
-  });
-
-  useEffect(() => {
-    try {
-      localStorage.setItem('customers', JSON.stringify(customers));
-    } catch (error) {
-      console.error('Error saving customers to localStorage:', error);
-    }
-  }, [customers]);
+  const [customers, setCustomers] = useState(defaultCustomers);
 
   useEffect(() => {
     const now = new Date().getTime();
@@ -150,30 +170,33 @@ function Customers() {
     };
   }, [customers]);
 
-  const handleSearchChange = useCallback((value) => {
-    let timeout;
-    return () => {
-      clearTimeout(timeout);
-      timeout = setTimeout(() => {
-        setSearchTerm(value);
-      }, 300);
-    };
-  }, []);
-
   const filteredCustomers = useMemo(() => {
-    return customers.filter(
-      (customer) =>
-        (statusFilter === 'All' || customer.status === statusFilter) &&
-        (customer.userId.toString().includes(searchTerm) ||
-          customer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          customer.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          customer.address.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          customer.contactNumber.includes(searchTerm) ||
-          customer.status.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          (customer.suspensionReason && customer.suspensionReason.toLowerCase().includes(searchTerm.toLowerCase())) ||
-          (customer.revokeReason && customer.revokeReason.toLowerCase().includes(searchTerm.toLowerCase())))
-    );
-  }, [customers, statusFilter, searchTerm]);
+    if (!debouncedSearchTerm && statusFilter === 'All') {
+      return customers;
+    }
+
+    const lowerSearchTerm = debouncedSearchTerm.toLowerCase();
+    return customers.filter((customer) => {
+      if (statusFilter !== 'All' && customer.status !== statusFilter) {
+        return false;
+      }
+
+      const searchString = [
+        customer.userId.toString(),
+        customer.name,
+        customer.email,
+        customer.address,
+        customer.contactNumber,
+        customer.status,
+        customer.suspensionReason || '',
+        customer.revokeReason || '',
+      ]
+        .join(' ')
+        .toLowerCase();
+
+      return searchString.includes(lowerSearchTerm);
+    });
+  }, [customers, statusFilter, debouncedSearchTerm]);
 
   const sortedCustomers = useMemo(() => {
     return [...filteredCustomers].sort((a, b) => {
@@ -380,7 +403,7 @@ function Customers() {
   };
 
   const handleRecordsPerPageChange = (e) => {
-    const value = e.target.value === '100' ? sortedCustomers.length : Number(e.target.value);
+    const value = e.target.value === '100' ? 100 : Number(e.target.value);
     setRecordsPerPage(value);
     setCurrentPage(1);
   };
@@ -389,6 +412,10 @@ function Customers() {
     if (page >= 1 && page <= totalPages) {
       setCurrentPage(page);
     }
+  };
+
+  const handleSearchChange = (e) => {
+    setSearchInput(e.target.value);
   };
 
   const exportToExcel = () => {
@@ -414,9 +441,43 @@ function Customers() {
   const renderPagination = () => {
     if (totalPages <= 1) return null;
 
+    const maxPagesToShow = 5; // Show 5 page numbers at a time (excluding first, last, and ellipsis)
+    const halfPages = Math.floor(maxPagesToShow / 2);
+    let startPage = Math.max(2, currentPage - halfPages);
+    let endPage = Math.min(totalPages - 1, currentPage + halfPages);
+
+    // Adjust start and end to ensure we show maxPagesToShow pages when possible
+    if (endPage - startPage + 1 < maxPagesToShow) {
+      if (currentPage < totalPages / 2) {
+        endPage = Math.min(totalPages - 1, startPage + maxPagesToShow - 1);
+      } else {
+        startPage = Math.max(2, endPage - maxPagesToShow + 1);
+      }
+    }
+
     const pageNumbers = [];
-    for (let i = 1; i <= totalPages; i++) {
+
+    // Always show first page
+    pageNumbers.push(1);
+
+    // Add ellipsis if there's a gap between page 1 and startPage
+    if (startPage > 2) {
+      pageNumbers.push('...');
+    }
+
+    // Add pages between startPage and endPage
+    for (let i = startPage; i <= endPage; i++) {
       pageNumbers.push(i);
+    }
+
+    // Add ellipsis if there's a gap between endPage and last page
+    if (endPage < totalPages - 1) {
+      pageNumbers.push('...');
+    }
+
+    // Always show last page if totalPages > 1
+    if (totalPages > 1) {
+      pageNumbers.push(totalPages);
     }
 
     return (
@@ -427,14 +488,19 @@ function Customers() {
         >
           Previous
         </button>
-        {pageNumbers.map((page) => (
-          <button
-            key={page}
-            onClick={() => handlePageChange(page)}
-            className={currentPage === page ? 'active' : ''}
-          >
-            {page}
-          </button>
+        {pageNumbers.map((page, index) => (
+          <span key={index}>
+            {page === '...' ? (
+              <span className="ellipsis">...</span>
+            ) : (
+              <button
+                onClick={() => handlePageChange(page)}
+                className={currentPage === page ? 'active' : ''}
+              >
+                {page}
+              </button>
+            )}
+          </span>
         ))}
         <button
           onClick={() => handlePageChange(currentPage + 1)}
@@ -484,7 +550,7 @@ function Customers() {
       <div className="main-content">
         <h1>CUSTOMERS</h1>
         <div className="search-bar">
-        <button className="action-btn excel" onClick={exportToExcel}>
+          <button className="action-btn excel" onClick={exportToExcel}>
             Export to Excel
           </button>
           <select
@@ -496,7 +562,7 @@ function Customers() {
             <option value="10">10</option>
             <option value="25">25</option>
             <option value="50">50</option>
-            <option value="100">All</option>
+            <option value="100">100</option>
           </select>
           <select
             value={statusFilter}
@@ -510,12 +576,10 @@ function Customers() {
           <input
             type="text"
             placeholder="Search by name, email, address..."
-            value={searchTerm}
-            onChange={(e) => handleSearchChange(e.target.value)()}
+            value={searchInput}
+            onChange={handleSearchChange}
           />
-         
         </div>
-       
         <div className="table-container">
           <table>
             <thead>
@@ -541,77 +605,18 @@ function Customers() {
             </thead>
             <tbody>
               {paginatedCustomers.length > 0 ? (
-                paginatedCustomers.map((customer) => {
-                  const customerIndex = paginatedCustomers.indexOf(customer);
-                  return (
-                    <tr key={customer.userId} className={`status-${customer.status.toLowerCase()}`}>
-                      <td>{customer.name}</td>
-                      <td>{customer.address}</td>
-                      <td>{customer.contactNumber}</td>
-                      <td>{customer.email}</td>
-                      <td>{customer.status}</td>
-                      <td>{customer.suspensionReason || customer.revokeReason || '-'}</td>
-                      <td>
-                        {customer.status === 'Active' && (
-                          <>
-                            <button
-                              className="action-btn suspend"
-                              onClick={() => openSuspendModal(customerIndex)}
-                              disabled={loadingIndex === customerIndex}
-                              aria-label={`Suspend ${customer.name}`}
-                            >
-                              {loadingIndex === customerIndex ? (
-                                <span>
-                                  <span className="spinner"></span> Suspending...
-                                </span>
-                              ) : (
-                                'Suspend'
-                              )}
-                            </button>
-                            <button
-                              className="action-btn revoke"
-                              onClick={() => openRevokeModal(customerIndex)}
-                              disabled={loadingIndex === customerIndex}
-                              aria-label={`Revoke ${customer.name}`}
-                            >
-                              {loadingIndex === customerIndex ? (
-                                <span>
-                                  <span className="spinner"></span> Revoking...
-                                </span>
-                              ) : (
-                                'Revoke'
-                              )}
-                            </button>
-                          </>
-                        )}
-                        {customer.status === 'Suspended' && (
-                          <button
-                            className="action-btn reactivate"
-                            onClick={() => handleReactivate(customerIndex)}
-                            disabled={loadingIndex === customerIndex}
-                            aria-label={`Reactivate ${customer.name}`}
-                          >
-                            {loadingIndex === customerIndex ? (
-                              <span>
-                                <span className="spinner"></span> Reactivating...
-                              </span>
-                            ) : (
-                              'Reactivate'
-                            )}
-                          </button>
-                        )}
-                        <button
-                          className="action-btn view"
-                          onClick={() => openViewModal(customerIndex)}
-                          disabled={loadingIndex === customerIndex}
-                          aria-label={`View details for ${customer.name}`}
-                        >
-                          View
-                        </button>
-                      </td>
-                    </tr>
-                  );
-                })
+                paginatedCustomers.map((customer, index) => (
+                  <CustomerRow
+                    key={customer.userId}
+                    customer={customer}
+                    index={index}
+                    loadingIndex={loadingIndex}
+                    openSuspendModal={openSuspendModal}
+                    openRevokeModal={openRevokeModal}
+                    handleReactivate={handleReactivate}
+                    openViewModal={openViewModal}
+                  />
+                ))
               ) : (
                 <tr>
                   <td colSpan="7" style={{ textAlign: 'center' }}>

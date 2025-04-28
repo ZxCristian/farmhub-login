@@ -1,7 +1,7 @@
 import React, { useState, useContext } from 'react';
 import { AuthContext } from '../context/AuthContext';
 import '../App.css';
-import logo from '../assets/FarmHub.png'; // Import the logo image
+import logo from '../assets/Agriville.png'; // Import the logo image
 
 function Login() {
   const [email, setEmail] = useState('');

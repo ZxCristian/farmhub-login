@@ -10,58 +10,14 @@ function PendingPreOrders() {
   const [currentPage, setCurrentPage] = useState(1);
 
   // Sample data for pending vegetable pre-orders
-  const [preOrders, setPreOrders] = useState([
-    { productId: 'V001', name: 'Grace Yellow', order: 'Tomatoes', quantity: 3, price: 3.96, status: 'Pending' },
-    { productId: 'V002', name: 'Emma Red', order: 'Cabbage', quantity: 1, price: 4.94, status: 'Pending' },
-    { productId: 'V003', name: 'Alice Green', order: 'Spinach', quantity: 7, price: 3.27, status: 'Pending' },
-    { productId: 'V004', name: 'David Black', order: 'Peppers', quantity: 9, price: 2.53, status: 'Pending' },
-    { productId: 'V005', name: 'Hank Violet', order: 'Cabbage', quantity: 10, price: 1.15, status: 'Pending' },
-    { productId: 'V006', name: 'Grace Yellow', order: 'Cabbage', quantity: 6, price: 2.23, status: 'Pending' },
-    { productId: 'V007', name: 'Emma Red', order: 'Spinach', quantity: 5, price: 1.91, status: 'Pending' },
-    { productId: 'V008', name: 'Alice Green', order: 'Cucumbers', quantity: 4, price: 4.79, status: 'Pending' },
-    { productId: 'V009', name: 'Ivy Indigo', order: 'Tomatoes', quantity: 4, price: 3.46, status: 'Pending' },
-    { productId: 'V010', name: 'Grace Yellow', order: 'Broccoli', quantity: 2, price: 3.37, status: 'Pending' },
-    { productId: 'V011', name: 'David Black', order: 'Lettuce', quantity: 1, price: 4.17, status: 'Pending' },
-    { productId: 'V012', name: 'David Black', order: 'Onions', quantity: 7, price: 4.36, status: 'Pending' },
-    { productId: 'V013', name: 'David Black', order: 'Tomatoes', quantity: 5, price: 3.14, status: 'Pending' },
-    { productId: 'V014', name: 'Emma Red', order: 'Peppers', quantity: 2, price: 3.49, status: 'Pending' },
-    { productId: 'V015', name: 'Ivy Indigo', order: 'Cabbage', quantity: 4, price: 4.21, status: 'Pending' },
-    { productId: 'V016', name: 'Alice Green', order: 'Peppers', quantity: 10, price: 2.2, status: 'Pending' },
-    { productId: 'V017', name: 'Alice Green', order: 'Tomatoes', quantity: 6, price: 3.41, status: 'Pending' },
-    { productId: 'V018', name: 'Frank Orange', order: 'Spinach', quantity: 2, price: 3.14, status: 'Pending' },
-    { productId: 'V019', name: 'Bob White', order: 'Lettuce', quantity: 2, price: 1.49, status: 'Pending' },
-    { productId: 'V020', name: 'Emma Red', order: 'Tomatoes', quantity: 6, price: 2.47, status: 'Pending' },
-    { productId: 'V021', name: 'Bob White', order: 'Lettuce', quantity: 9, price: 1.3, status: 'Pending' },
-    { productId: 'V022', name: 'David Black', order: 'Peppers', quantity: 1, price: 2.94, status: 'Pending' },
-    { productId: 'V023', name: 'Bob White', order: 'Cabbage', quantity: 7, price: 3.4, status: 'Pending' },
-    { productId: 'V024', name: 'Grace Yellow', order: 'Peppers', quantity: 5, price: 1.88, status: 'Pending' },
-    { productId: 'V025', name: 'Emma Red', order: 'Lettuce', quantity: 3, price: 2.67, status: 'Pending' },
-    { productId: 'V026', name: 'Grace Yellow', order: 'Onions', quantity: 1, price: 4.71, status: 'Pending' },
-    { productId: 'V027', name: 'David Black', order: 'Broccoli', quantity: 2, price: 2.97, status: 'Pending' },
-    { productId: 'V028', name: 'David Black', order: 'Tomatoes', quantity: 4, price: 1.08, status: 'Pending' },
-    { productId: 'V029', name: 'Frank Orange', order: 'Cabbage', quantity: 1, price: 4.15, status: 'Pending' },
-    { productId: 'V030', name: 'Ivy Indigo', order: 'Broccoli', quantity: 9, price: 2.63, status: 'Pending' },
-    { productId: 'V031', name: 'Bob White', order: 'Cucumbers', quantity: 9, price: 2.37, status: 'Pending' },
-    { productId: 'V032', name: 'Emma Red', order: 'Broccoli', quantity: 8, price: 2.91, status: 'Pending' },
-    { productId: 'V033', name: 'Jack Brown', order: 'Lettuce', quantity: 9, price: 4.25, status: 'Pending' },
-    { productId: 'V034', name: 'Emma Red', order: 'Peppers', quantity: 5, price: 1.66, status: 'Pending' },
-    { productId: 'V035', name: 'Alice Green', order: 'Tomatoes', quantity: 5, price: 3.33, status: 'Pending' },
-    { productId: 'V036', name: 'Bob White', order: 'Spinach', quantity: 6, price: 4.99, status: 'Pending' },
-    { productId: 'V037', name: 'Alice Green', order: 'Cabbage', quantity: 3, price: 4.67, status: 'Pending' },
-    { productId: 'V038', name: 'Grace Yellow', order: 'Cabbage', quantity: 6, price: 3.01, status: 'Pending' },
-    { productId: 'V039', name: 'Hank Violet', order: 'Lettuce', quantity: 7, price: 4.18, status: 'Pending' },
-    { productId: 'V040', name: 'Bob White', order: 'Onions', quantity: 5, price: 1.77, status: 'Pending' },
-    { productId: 'V041', name: 'Alice Green', order: 'Cucumbers', quantity: 8, price: 1.47, status: 'Pending' },
-    { productId: 'V042', name: 'Alice Green', order: 'Carrots', quantity: 6, price: 3.11, status: 'Pending' },
-    { productId: 'V043', name: 'Frank Orange', order: 'Onions', quantity: 2, price: 3.91, status: 'Pending' },
-    { productId: 'V044', name: 'Bob White', order: 'Tomatoes', quantity: 5, price: 0, status: 'Pending' },
-    { productId: 'V045', name: 'Grace Yellow', order: 'Onions', quantity: 4, price: 3.26, status: 'Pending' },
-    { productId: 'V046', name: 'Emma Red', order: 'Tomatoes', quantity: 9, price: 3.97, status: 'Pending' },
-    { productId: 'V047', name: 'Jack Brown', order: 'Carrots', quantity: 4, price: 4.86, status: 'Pending' },
-    { productId: 'V048', name: 'Frank Orange', order: 'Cucumbers', quantity: 5, price: 3.92, status: 'Pending' },
-    { productId: 'V049', name: 'David Black', order: 'Spinach', quantity: 1, price: 3.5, status: 'Pending' },
-    { productId: 'V050', name: 'David Black', order: 'Cabbage', quantity: 2, price: 4.72, status: 'Pending' },
-  ]);
+  const [preOrders, setPreOrders] = useState(Array.from({ length: 10000 }, (_, i) => ({
+    productId: `V${String(i + 1).padStart(3, '0')}`,
+    name: ['Grace Yellow', 'Emma Red', 'Alice Green', 'David Black', 'Hank Violet', 'Ivy Indigo', 'Frank Orange', 'Bob White', 'Jack Brown'][i % 9],
+    order: ['Tomatoes', 'Cabbage', 'Spinach', 'Peppers', 'Lettuce', 'Onions', 'Broccoli', 'Cucumbers', 'Carrots'][i % 9],
+    quantity: Math.floor(Math.random() * 10) + 1,
+    price: parseFloat((Math.random() * 5).toFixed(2)),
+    status: 'Pending',
+  })));
 
   // Filter pre-orders to only show Pending status
   const filteredPreOrders = preOrders.filter(
@@ -94,7 +50,7 @@ function PendingPreOrders() {
   });
 
   // Pagination logic
-  const totalPages = Math.ceil(sortedPreOrders.length / recordsPerPage);
+  const totalPages = Math.max(1, Math.ceil(sortedPreOrders.length / recordsPerPage));
   const startIndex = (currentPage - 1) * recordsPerPage;
   const paginatedPreOrders = sortedPreOrders.slice(startIndex, startIndex + recordsPerPage);
 
@@ -116,6 +72,10 @@ function PendingPreOrders() {
           (p) => !(p.productId === preOrder.productId && p.name === preOrder.name)
         );
         setPreOrders(updatedPreOrders);
+        // Adjust currentPage if the current page becomes empty
+        if (paginatedPreOrders.length === 1 && currentPage > 1) {
+          setCurrentPage(currentPage - 1);
+        }
       } catch (error) {
         console.error('Error approving pre-order:', error);
         alert('Failed to approve pre-order. Please try again.');
@@ -137,6 +97,10 @@ function PendingPreOrders() {
           (p) => !(p.productId === preOrder.productId && p.name === preOrder.name)
         );
         setPreOrders(updatedPreOrders);
+        // Adjust currentPage if the current page becomes empty
+        if (paginatedPreOrders.length === 1 && currentPage > 1) {
+          setCurrentPage(currentPage - 1);
+        }
       } catch (error) {
         console.error('Error rejecting pre-order:', error);
         alert('Failed to reject pre-order. Please try again.');
@@ -162,18 +126,35 @@ function PendingPreOrders() {
     if (totalPages <= 1) return null;
 
     const pageNumbers = [];
-    for (let i = 1; i <= totalPages; i++) {
+    const maxPagesToShow = 5; // Show current page ± 2
+    const halfRange = Math.floor(maxPagesToShow / 2);
+    let startPage = Math.max(1, currentPage - halfRange);
+    let endPage = Math.min(totalPages, startPage + maxPagesToShow - 1);
+
+    // Adjust startPage if endPage is at the totalPages
+    if (endPage === totalPages) {
+      startPage = Math.max(1, endPage - maxPagesToShow + 1);
+    }
+
+    for (let i = startPage; i <= endPage; i++) {
       pageNumbers.push(i);
     }
 
     return (
       <div className="pagination">
         <button
+          onClick={() => handlePageChange(1)}
+          disabled={currentPage === 1}
+        >
+          First
+        </button>
+        <button
           onClick={() => handlePageChange(currentPage - 1)}
           disabled={currentPage === 1}
         >
           Previous
         </button>
+        {startPage > 1 && <span>...</span>}
         {pageNumbers.map((page) => (
           <button
             key={page}
@@ -183,6 +164,13 @@ function PendingPreOrders() {
             {page}
           </button>
         ))}
+        {endPage < totalPages && <span>...</span>}
+        <button
+          onClick={() => handlePageChange(totalPages)}
+          disabled={currentPage === totalPages}
+        >
+          Last
+        </button>
         <button
           onClick={() => handlePageChange(currentPage + 1)}
           disabled={currentPage === totalPages}
@@ -239,7 +227,6 @@ function PendingPreOrders() {
                 <th onClick={() => sortData('price')} className={sortConfig.key === 'price' ? 'sorted' : ''}>
                   Price {sortConfig.key === 'price' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
                 </th>
-               
                 <th>Actions</th>
               </tr>
             </thead>
@@ -250,9 +237,8 @@ function PendingPreOrders() {
                     <td>{preOrder.productId}</td>
                     <td>{preOrder.name}</td>
                     <td>{preOrder.order}</td>
-                    <td>{preOrder.quantity}</td>
-                    <td>{preOrder.price ? `₱${preOrder.price.toFixed(2)}` : '-'}</td>
-                   
+                    <td>{preOrder.quantity}kg</td>
+                    <td>₱{preOrder.price.toFixed(2)}</td>
                     <td>
                       <button
                         className="action-btn approve"
@@ -285,7 +271,7 @@ function PendingPreOrders() {
                 ))
               ) : (
                 <tr>
-                  <td colSpan="7" style={{ textAlign: 'center' }}>
+                  <td colSpan="6" style={{ textAlign: 'center' }}>
                     No pending pre-orders found.
                   </td>
                 </tr>

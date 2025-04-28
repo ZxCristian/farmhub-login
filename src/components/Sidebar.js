@@ -4,7 +4,7 @@ import { AuthContext } from '../context/AuthContext';
 import Modal from './Modal';
 import ChangePasswordForm from './ChangePasswordForm';
 import '../Dashboard.css';
-import logo from '../assets/FarmHub.png';
+import logo from '../assets/Agriville.png';
 
 function Sidebar({ activePage }) {
   const [isModalOpen, setIsModalOpen] = useState(false); // For Change Password modal
@@ -56,11 +56,11 @@ function Sidebar({ activePage }) {
                 <span style={{ marginRight: '8px' }}>🛒</span> Pending Orders
               </Link>
             </li>
-            <li className={activePage === 'Pending Pre-Order' ? 'active' : ''}>
-              <Link to="/pending-pre-orders">
-                <span style={{ marginRight: '8px' }}>📅</span> Pending Pre-Order
-              </Link>
-            </li>
+            <li className={activePage === 'Pending Pre-Orders' ? 'active' : ''}>
+  <Link to="/pending-pre-orders">
+    <span style={{ marginRight: '8px' }}>📅</span> Pending Pre-Order
+  </Link>
+</li>
             <li className={activePage === 'Members' ? 'active' : ''}>
               <Link to="/members">
                 <span style={{ marginRight: '8px' }}>👨‍🌾</span> Members

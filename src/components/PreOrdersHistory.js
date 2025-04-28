@@ -11,188 +11,15 @@ function PreOrdersHistory() {
   const [currentPage, setCurrentPage] = useState(1);
 
   // Sample data for pre-order history (with vegetables and dates)
-  const [preOrders] = useState([
-    {
-      productId: 'V101',
-      farmer: 'Anna Taylor',
-      preOrder: 'Tomatoes',
-      quantity: 8,
-      price: 2.50,
-      status: 'Completed',
-      date: '2025-02-05',
-    },
-    {
-      productId: 'V102',
-      farmer: 'Mark Evans',
-      preOrder: 'Cucumbers',
-      quantity: 4,
-      price: 3.00,
-      status: 'Completed',
-      date: '2025-03-01',
-    },
-    {
-      productId: 'V103',
-      farmer: 'Sophie Clark',
-      preOrder: 'Potatoes',
-      quantity: 10,
-      price: 1.50,
-      status: 'Cancelled',
-      date: '2025-03-20',
-    },
-    {
-      productId: 'V104',
-      farmer: 'James Lee',
-      preOrder: 'Eggplant',
-      quantity: 3,
-      price: 4.00,
-      status: 'Completed',
-      date: '2025-01-15',
-    },
-    {
-      productId: 'V105',
-      farmer: 'Laura Harris',
-      preOrder: 'Onions',
-      quantity: 6,
-      price: 2.00,
-      status: 'Cancelled',
-      date: '2025-04-05',
-    },
-    {
-      productId: 'V101',
-      farmer: 'Anna Taylor',
-      preOrder: 'Tomatoes',
-      quantity: 8,
-      price: 2.50,
-      status: 'Completed',
-      date: '2025-02-05',
-    },
-    {
-      productId: 'V102',
-      farmer: 'Mark Evans',
-      preOrder: 'Cucumbers',
-      quantity: 4,
-      price: 3.00,
-      status: 'Completed',
-      date: '2025-03-01',
-    },
-    {
-      productId: 'V103',
-      farmer: 'Sophie Clark',
-      preOrder: 'Potatoes',
-      quantity: 10,
-      price: 1.50,
-      status: 'Cancelled',
-      date: '2025-03-20',
-    },
-    {
-      productId: 'V104',
-      farmer: 'James Lee',
-      preOrder: 'Eggplant',
-      quantity: 3,
-      price: 4.00,
-      status: 'Completed',
-      date: '2025-01-15',
-    },
-    {
-      productId: 'V105',
-      farmer: 'Laura Harris',
-      preOrder: 'Onions',
-      quantity: 6,
-      price: 2.00,
-      status: 'Cancelled',
-      date: '2025-04-05',
-    },
-    {
-      productId: 'V101',
-      farmer: 'Anna Taylor',
-      preOrder: 'Tomatoes',
-      quantity: 8,
-      price: 2.50,
-      status: 'Completed',
-      date: '2025-02-05',
-    },
-    {
-      productId: 'V102',
-      farmer: 'Mark Evans',
-      preOrder: 'Cucumbers',
-      quantity: 4,
-      price: 3.00,
-      status: 'Completed',
-      date: '2025-03-01',
-    },
-    {
-      productId: 'V103',
-      farmer: 'Sophie Clark',
-      preOrder: 'Potatoes',
-      quantity: 10,
-      price: 1.50,
-      status: 'Cancelled',
-      date: '2025-03-20',
-    },
-    {
-      productId: 'V104',
-      farmer: 'James Lee',
-      preOrder: 'Eggplant',
-      quantity: 3,
-      price: 4.00,
-      status: 'Completed',
-      date: '2025-01-15',
-    },
-    {
-      productId: 'V105',
-      farmer: 'Laura Harris',
-      preOrder: 'Onions',
-      quantity: 6,
-      price: 2.00,
-      status: 'Cancelled',
-      date: '2025-04-05',
-    },
-    {
-      productId: 'V101',
-      farmer: 'Anna Taylor',
-      preOrder: 'Tomatoes',
-      quantity: 8,
-      price: 2.50,
-      status: 'Completed',
-      date: '2025-02-05',
-    },
-    {
-      productId: 'V102',
-      farmer: 'Mark Evans',
-      preOrder: 'Cucumbers',
-      quantity: 4,
-      price: 3.00,
-      status: 'Completed',
-      date: '2025-03-01',
-    },
-    {
-      productId: 'V103',
-      farmer: 'Sophie Clark',
-      preOrder: 'Potatoes',
-      quantity: 10,
-      price: 1.50,
-      status: 'Cancelled',
-      date: '2025-03-20',
-    },
-    {
-      productId: 'V104',
-      farmer: 'James Lee',
-      preOrder: 'Eggplant',
-      quantity: 3,
-      price: 4.00,
-      status: 'Completed',
-      date: '2025-01-15',
-    },
-    {
-      productId: 'V105',
-      farmer: 'Laura Harris',
-      preOrder: 'Onions',
-      quantity: 6,
-      price: 2.00,
-      status: 'Cancelled',
-      date: '2025-04-05',
-    },
-  ]);
+  const [preOrders] = useState(Array.from({ length: 10000 }, (_, index) => ({
+    productId: `V${100 + index + 1}`,
+    farmer: `Farmer ${index + 1}`,
+    preOrder: ['Tomatoes', 'Cucumbers', 'Potatoes', 'Eggplant', 'Onions'][index % 5],
+    quantity: Math.floor(Math.random() * 20) + 1,
+    price: Math.random() * 5 + 1,
+    status: ['Completed', 'Cancelled'][index % 2],
+    date: `2025-${String(Math.floor(Math.random() * 12) + 1).padStart(2, '0')}-${String(Math.floor(Math.random() * 28) + 1).padStart(2, '0')}`,
+  })));
 
   // Filter pre-orders based on the search term
   const filteredPreOrders = preOrders.filter(
@@ -201,7 +28,7 @@ function PreOrdersHistory() {
       preOrder.farmer.toLowerCase().includes(searchTerm.toLowerCase()) ||
       preOrder.preOrder.toLowerCase().includes(searchTerm.toLowerCase()) ||
       preOrder.quantity.toString().includes(searchTerm) ||
-      preOrder.price.toString().includes(searchTerm) ||
+      (preOrder.quantity * preOrder.price).toString().includes(searchTerm) ||
       preOrder.status.toLowerCase().includes(searchTerm.toLowerCase()) ||
       preOrder.date.toLowerCase().includes(searchTerm.toLowerCase())
   );
@@ -211,13 +38,21 @@ function PreOrdersHistory() {
     const key = sortConfig.key;
     const direction = sortConfig.direction === 'asc' ? 1 : -1;
 
+    if (key === 'totalPrice') {
+      const totalA = a.quantity * a.price;
+      const totalB = b.quantity * b.price;
+      if (totalA < totalB) return -direction;
+      if (totalA > totalB) return direction;
+      return 0;
+    }
+
     if (a[key] < b[key]) return -direction;
     if (a[key] > b[key]) return direction;
     return 0;
   });
 
   // Pagination logic
-  const totalPages = Math.ceil(sortedPreOrders.length / recordsPerPage);
+  const totalPages = Math.max(1, Math.ceil(sortedPreOrders.length / recordsPerPage));
   const startIndex = (currentPage - 1) * recordsPerPage;
   const paginatedPreOrders = sortedPreOrders.slice(startIndex, startIndex + recordsPerPage);
 
@@ -255,7 +90,7 @@ function PreOrdersHistory() {
         Farmer: preOrder.farmer,
         'Pre-Order': preOrder.preOrder,
         Quantity: preOrder.quantity,
-        Price: preOrder.price,
+        'Total Price': (preOrder.quantity * preOrder.price).toFixed(2),
         Status: preOrder.status,
         Date: preOrder.date,
       }))
@@ -269,30 +104,59 @@ function PreOrdersHistory() {
     if (totalPages <= 1) return null;
 
     const pageNumbers = [];
-    for (let i = 1; i <= totalPages; i++) {
+    const maxPagesToShow = 5;
+    const halfRange = Math.floor(maxPagesToShow / 2);
+    let startPage = Math.max(1, currentPage - halfRange);
+    let endPage = Math.min(totalPages, startPage + maxPagesToShow - 1);
+
+    if (endPage === totalPages) {
+      startPage = Math.max(1, endPage - maxPagesToShow + 1);
+    }
+
+    for (let i = startPage; i <= endPage; i++) {
       pageNumbers.push(i);
     }
 
     return (
       <div className="pagination">
         <button
+          onClick={() => handlePageChange(1)}
+          disabled={currentPage === 1}
+          aria-label="Go to first page"
+        >
+          First
+        </button>
+        <button
           onClick={() => handlePageChange(currentPage - 1)}
           disabled={currentPage === 1}
+          aria-label="Go to previous page"
         >
           Previous
         </button>
+        {startPage > 1 && <span>...</span>}
         {pageNumbers.map((page) => (
           <button
             key={page}
             onClick={() => handlePageChange(page)}
             className={currentPage === page ? 'active' : ''}
+            aria-label={`Go to page ${page}`}
+            aria-current={currentPage === page ? 'page' : undefined}
           >
             {page}
           </button>
         ))}
+        {endPage < totalPages && <span>...</span>}
+        <button
+          onClick={() => handlePageChange(totalPages)}
+          disabled={currentPage === totalPages}
+          aria-label="Go to last page"
+        >
+          Last
+        </button>
         <button
           onClick={() => handlePageChange(currentPage + 1)}
           disabled={currentPage === totalPages}
+          aria-label="Go to next page"
         >
           Next
         </button>
@@ -309,7 +173,7 @@ function PreOrdersHistory() {
       <div className="main-content">
         <h1>PRE-ORDERS HISTORY</h1>
         <div className="search-bar">
-        <button className="action-btn excel" onClick={exportToExcel}>
+          <button className="action-btn excel" onClick={exportToExcel}>
             Export to Excel
           </button>
           <select
@@ -329,7 +193,6 @@ function PreOrdersHistory() {
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
-         
         </div>
         <div className="table-container">
           <table>
@@ -347,8 +210,8 @@ function PreOrdersHistory() {
                 <th onClick={() => sortData('quantity')} className={sortConfig.key === 'quantity' ? 'sorted' : ''}>
                   Quantity {sortConfig.key === 'quantity' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
                 </th>
-                <th onClick={() => sortData('price')} className={sortConfig.key === 'price' ? 'sorted' : ''}>
-                  Price {sortConfig.key === 'price' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
+                <th onClick={() => sortData('totalPrice')} className={sortConfig.key === 'totalPrice' ? 'sorted' : ''}>
+                  Total Price {sortConfig.key === 'totalPrice' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
                 </th>
                 <th onClick={() => sortData('status')} className={sortConfig.key === 'status' ? 'sorted' : ''}>
                   Status {sortConfig.key === 'status' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
@@ -366,8 +229,8 @@ function PreOrdersHistory() {
                     <td>{preOrder.productId}</td>
                     <td>{preOrder.farmer}</td>
                     <td>{preOrder.preOrder}</td>
-                    <td>{preOrder.quantity}</td>
-                    <td>₱{preOrder.price.toFixed(2)}</td>
+                    <td>{preOrder.quantity}kg</td>
+                    <td>₱{(preOrder.quantity * preOrder.price).toFixed(2)}</td>
                     <td>{preOrder.status}</td>
                     <td>{preOrder.date}</td>
                     <td>
