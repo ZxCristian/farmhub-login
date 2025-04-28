@@ -4,7 +4,6 @@ import '../Dashboard.css';
 
 function PendingPreOrders() {
   const [searchTerm, setSearchTerm] = useState('');
-  const [statusFilter, setStatusFilter] = useState('All');
   const [sortConfig, setSortConfig] = useState({ key: 'productId', direction: 'asc' });
   const [loadingIndex, setLoadingIndex] = useState(null);
   const [recordsPerPage, setRecordsPerPage] = useState(10);
@@ -55,31 +54,39 @@ function PendingPreOrders() {
     { productId: 'V041', name: 'Alice Green', order: 'Cucumbers', quantity: 8, price: 1.47, status: 'Pending' },
     { productId: 'V042', name: 'Alice Green', order: 'Carrots', quantity: 6, price: 3.11, status: 'Pending' },
     { productId: 'V043', name: 'Frank Orange', order: 'Onions', quantity: 2, price: 3.91, status: 'Pending' },
-    { productId: 'V044', name: 'Bob White', order: 'Tomatoes', quantity: 5, price: 3.59, status: 'Pending' },
+    { productId: 'V044', name: 'Bob White', order: 'Tomatoes', quantity: 5, price: 0, status: 'Pending' },
     { productId: 'V045', name: 'Grace Yellow', order: 'Onions', quantity: 4, price: 3.26, status: 'Pending' },
     { productId: 'V046', name: 'Emma Red', order: 'Tomatoes', quantity: 9, price: 3.97, status: 'Pending' },
     { productId: 'V047', name: 'Jack Brown', order: 'Carrots', quantity: 4, price: 4.86, status: 'Pending' },
-    { productId: 'V048', name: 'Frank Orange', order: 'Cucumers', quantity: 5, price: 3.92, status: 'Pending' },
+    { productId: 'V048', name: 'Frank Orange', order: 'Cucumbers', quantity: 5, price: 3.92, status: 'Pending' },
     { productId: 'V049', name: 'David Black', order: 'Spinach', quantity: 1, price: 3.5, status: 'Pending' },
     { productId: 'V050', name: 'David Black', order: 'Cabbage', quantity: 2, price: 4.72, status: 'Pending' },
   ]);
 
-  // Filter pre-orders based on the search term and status
+  // Filter pre-orders to only show Pending status
   const filteredPreOrders = preOrders.filter(
     (preOrder) =>
-      (statusFilter === 'All' || preOrder.status === statusFilter) &&
+      preOrder.status === 'Pending' &&
       (preOrder.productId.toLowerCase().includes(searchTerm.toLowerCase()) ||
        preOrder.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
        preOrder.order.toLowerCase().includes(searchTerm.toLowerCase()) ||
        preOrder.quantity.toString().includes(searchTerm) ||
-       preOrder.price.toString().includes(searchTerm) ||
-       preOrder.status.toLowerCase().includes(searchTerm.toLowerCase()))
+       (preOrder.price && preOrder.price.toString().includes(searchTerm)))
   );
 
   // Sort the filtered pre-orders
   const sortedPreOrders = [...filteredPreOrders].sort((a, b) => {
     const key = sortConfig.key;
     const direction = sortConfig.direction === 'asc' ? 1 : -1;
+
+    // Handle cases where price might be undefined or zero
+    if (key === 'price') {
+      const aPrice = a[key] ?? 0;
+      const bPrice = b[key] ?? 0;
+      if (aPrice < bPrice) return -direction;
+      if (aPrice > bPrice) return direction;
+      return 0;
+    }
 
     if (a[key] < b[key]) return -direction;
     if (a[key] > b[key]) return direction;
@@ -104,11 +111,10 @@ function PendingPreOrders() {
       try {
         // Simulate API call
         await new Promise((resolve) => setTimeout(resolve, 1000));
-        const updatedPreOrders = [...preOrders];
-        const preOrderIndex = preOrders.findIndex(
-          (p) => p.productId === preOrder.productId && p.name === preOrder.name
+        // Remove the approved pre-order from the list
+        const updatedPreOrders = preOrders.filter(
+          (p) => !(p.productId === preOrder.productId && p.name === preOrder.name)
         );
-        updatedPreOrders[preOrderIndex].status = 'Approved';
         setPreOrders(updatedPreOrders);
       } catch (error) {
         console.error('Error approving pre-order:', error);
@@ -126,11 +132,10 @@ function PendingPreOrders() {
       try {
         // Simulate API call
         await new Promise((resolve) => setTimeout(resolve, 1000));
-        const updatedPreOrders = [...preOrders];
-        const preOrderIndex = preOrders.findIndex(
-          (p) => p.productId === preOrder.productId && p.name === preOrder.name
+        // Remove the rejected pre-order from the list
+        const updatedPreOrders = preOrders.filter(
+          (p) => !(p.productId === preOrder.productId && p.name === preOrder.name)
         );
-        updatedPreOrders[preOrderIndex].status = 'Rejected';
         setPreOrders(updatedPreOrders);
       } catch (error) {
         console.error('Error rejecting pre-order:', error);
@@ -193,7 +198,7 @@ function PendingPreOrders() {
 
   return (
     <div className="dashboard">
-      <Sidebar activePage="Pending Pre-Order" />
+      <Sidebar activePage="Pending Pre-Orders" />
       <div className="main-content">
         <h1>PENDING PRE-ORDERS</h1>
         <div className="search-bar">
@@ -207,15 +212,6 @@ function PendingPreOrders() {
             <option value="25">25</option>
             <option value="50">50</option>
             <option value="100">All</option>
-          </select>
-          <select
-            value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
-          >
-            <option value="All">All Statuses</option>
-            <option value="Pending">Pending</option>
-            <option value="Approved">Approved</option>
-            <option value="Rejected">Rejected</option>
           </select>
           <input
             type="text"
@@ -243,9 +239,7 @@ function PendingPreOrders() {
                 <th onClick={() => sortData('price')} className={sortConfig.key === 'price' ? 'sorted' : ''}>
                   Price {sortConfig.key === 'price' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
                 </th>
-                <th onClick={() => sortData('status')} className={sortConfig.key === 'status' ? 'sorted' : ''}>
-                  Status {sortConfig.key === 'status' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
-                </th>
+               
                 <th>Actions</th>
               </tr>
             </thead>
@@ -257,48 +251,42 @@ function PendingPreOrders() {
                     <td>{preOrder.name}</td>
                     <td>{preOrder.order}</td>
                     <td>{preOrder.quantity}</td>
-                    <td>₱{preOrder.price.toFixed(2)}</td>
-                    <td>{preOrder.status}</td>
+                    <td>{preOrder.price ? `₱${preOrder.price.toFixed(2)}` : '-'}</td>
+                   
                     <td>
-                      {preOrder.status === 'Pending' ? (
-                        <>
-                          <button
-                            className="action-btn approve"
-                            onClick={() => handleApprove(index)}
-                            disabled={loadingIndex === index}
-                          >
-                            {loadingIndex === index ? (
-                              <span>
-                                <span className="spinner"></span> Approving...
-                              </span>
-                            ) : (
-                              'Approve'
-                            )}
-                          </button>
-                          <button
-                            className="action-btn reject"
-                            onClick={() => handleReject(index)}
-                            disabled={loadingIndex === index}
-                          >
-                            {loadingIndex === index ? (
-                              <span>
-                                <span className="spinner"></span> Rejecting...
-                              </span>
-                            ) : (
-                              'Reject'
-                            )}
-                          </button>
-                        </>
-                      ) : (
-                        '-'
-                      )}
+                      <button
+                        className="action-btn approve"
+                        onClick={() => handleApprove(index)}
+                        disabled={loadingIndex === index}
+                      >
+                        {loadingIndex === index ? (
+                          <span>
+                            <span className="spinner"></span> Approving...
+                          </span>
+                        ) : (
+                          'Approve'
+                        )}
+                      </button>
+                      <button
+                        className="action-btn reject"
+                        onClick={() => handleReject(index)}
+                        disabled={loadingIndex === index}
+                      >
+                        {loadingIndex === index ? (
+                          <span>
+                            <span className="spinner"></span> Rejecting...
+                          </span>
+                        ) : (
+                          'Reject'
+                        )}
+                      </button>
                     </td>
                   </tr>
                 ))
               ) : (
                 <tr>
                   <td colSpan="7" style={{ textAlign: 'center' }}>
-                    No matching pre-orders found.
+                    No pending pre-orders found.
                   </td>
                 </tr>
               )}

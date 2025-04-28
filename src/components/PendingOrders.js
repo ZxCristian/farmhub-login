@@ -4,7 +4,6 @@ import '../Dashboard.css';
 
 function PendingOrders() {
   const [searchTerm, setSearchTerm] = useState('');
-  const [statusFilter, setStatusFilter] = useState('All');
   const [sortConfig, setSortConfig] = useState({ key: 'productId', direction: 'asc' });
   const [loadingIndex, setLoadingIndex] = useState(null);
   const [recordsPerPage, setRecordsPerPage] = useState(10);
@@ -64,16 +63,15 @@ function PendingOrders() {
     { productId: 'V050', name: 'David Black', order: 'Cabbage', quantity: 2, price: 4.72, status: 'Pending' },
   ]);
 
-  // Filter orders based on the search term and status
+  // Filter orders to only show Pending status
   const filteredOrders = orders.filter(
     (order) =>
-      (statusFilter === 'All' || order.status === statusFilter) &&
+      order.status === 'Pending' &&
       (order.productId.toLowerCase().includes(searchTerm.toLowerCase()) ||
        order.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
        order.order.toLowerCase().includes(searchTerm.toLowerCase()) ||
        order.quantity.toString().includes(searchTerm) ||
-       order.price.toString().includes(searchTerm) ||
-       order.status.toLowerCase().includes(searchTerm.toLowerCase()))
+       order.price.toString().includes(searchTerm))
   );
 
   // Sort the filtered orders
@@ -104,11 +102,10 @@ function PendingOrders() {
       try {
         // Simulate API call
         await new Promise((resolve) => setTimeout(resolve, 1000));
-        const updatedOrders = [...orders];
-        const orderIndex = orders.findIndex(
-          (o) => o.productId === order.productId && o.name === order.name
+        // Remove the approved order from the list
+        const updatedOrders = orders.filter(
+          (o) => !(o.productId === order.productId && o.name === order.name)
         );
-        updatedOrders[orderIndex].status = 'Approved';
         setOrders(updatedOrders);
       } catch (error) {
         console.error('Error approving order:', error);
@@ -126,11 +123,10 @@ function PendingOrders() {
       try {
         // Simulate API call
         await new Promise((resolve) => setTimeout(resolve, 1000));
-        const updatedOrders = [...orders];
-        const orderIndex = orders.findIndex(
-          (o) => o.productId === order.productId && o.name === order.name
+        // Remove the rejected order from the list
+        const updatedOrders = orders.filter(
+          (o) => !(o.productId === order.productId && o.name === order.name)
         );
-        updatedOrders[orderIndex].status = 'Rejected';
         setOrders(updatedOrders);
       } catch (error) {
         console.error('Error rejecting order:', error);
@@ -208,15 +204,6 @@ function PendingOrders() {
             <option value="50">50</option>
             <option value="100">All</option>
           </select>
-          <select
-            value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
-          >
-            <option value="All">All Statuses</option>
-            <option value="Pending">Pending</option>
-            <option value="Approved">Approved</option>
-            <option value="Rejected">Rejected</option>
-          </select>
           <input
             type="text"
             placeholder="Search..."
@@ -243,9 +230,7 @@ function PendingOrders() {
                 <th onClick={() => sortData('price')} className={sortConfig.key === 'price' ? 'sorted' : ''}>
                   Price {sortConfig.key === 'price' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
                 </th>
-                <th onClick={() => sortData('status')} className={sortConfig.key === 'status' ? 'sorted' : ''}>
-                  Status {sortConfig.key === 'status' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
-                </th>
+                
                 <th>Actions</th>
               </tr>
             </thead>
@@ -258,47 +243,41 @@ function PendingOrders() {
                     <td>{order.order}</td>
                     <td>{order.quantity}</td>
                     <td>₱{order.price.toFixed(2)}</td>
-                    <td>{order.status}</td>
+                    
                     <td>
-                      {order.status === 'Pending' ? (
-                        <>
-                          <button
-                            className="action-btn approve"
-                            onClick={() => handleApprove(index)}
-                            disabled={loadingIndex === index}
-                          >
-                            {loadingIndex === index ? (
-                              <span>
-                                <span className="spinner"></span> Approving...
-                              </span>
-                            ) : (
-                              'Approve'
-                            )}
-                          </button>
-                          <button
-                            className="action-btn reject"
-                            onClick={() => handleReject(index)}
-                            disabled={loadingIndex === index}
-                          >
-                            {loadingIndex === index ? (
-                              <span>
-                                <span className="spinner"></span> Rejecting...
-                              </span>
-                            ) : (
-                              'Reject'
-                            )}
-                          </button>
-                        </>
-                      ) : (
-                        '-'
-                      )}
+                      <button
+                        className="action-btn approve"
+                        onClick={() => handleApprove(index)}
+                        disabled={loadingIndex === index}
+                      >
+                        {loadingIndex === index ? (
+                          <span>
+                            <span className="spinner"></span> Approving...
+                          </span>
+                        ) : (
+                          'Approve'
+                        )}
+                      </button>
+                      <button
+                        className="action-btn reject"
+                        onClick={() => handleReject(index)}
+                        disabled={loadingIndex === index}
+                      >
+                        {loadingIndex === index ? (
+                          <span>
+                            <span className="spinner"></span> Rejecting...
+                          </span>
+                        ) : (
+                          'Reject'
+                        )}
+                      </button>
                     </td>
                   </tr>
                 ))
               ) : (
                 <tr>
                   <td colSpan="7" style={{ textAlign: 'center' }}>
-                    No matching orders found.
+                    No pending orders found.
                   </td>
                 </tr>
               )}
