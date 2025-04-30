@@ -9,25 +9,49 @@ function PendingPreOrders() {
   const [recordsPerPage, setRecordsPerPage] = useState(10);
   const [currentPage, setCurrentPage] = useState(1);
 
-  // Sample data for pending vegetable pre-orders
-  const [preOrders, setPreOrders] = useState(Array.from({ length: 10000 }, (_, i) => ({
-    productId: `V${String(i + 1).padStart(3, '0')}`,
-    name: ['Grace Yellow', 'Emma Red', 'Alice Green', 'David Black', 'Hank Violet', 'Ivy Indigo', 'Frank Orange', 'Bob White', 'Jack Brown'][i % 9],
-    order: ['Tomatoes', 'Cabbage', 'Spinach', 'Peppers', 'Lettuce', 'Onions', 'Broccoli', 'Cucumbers', 'Carrots'][i % 9],
-    quantity: Math.floor(Math.random() * 10) + 1,
-    price: parseFloat((Math.random() * 5).toFixed(2)),
-    status: 'Pending',
-  })));
+  // Sample data for pending vegetable pre-orders (reduced to 50 records, added unique id)
+  const [preOrders, setPreOrders] = useState(
+    Array.from({ length: 50000 }, (_, i) => ({
+      id: `preorder-${i + 1}`, // Unique identifier
+      productId: `V${String(i + 1).padStart(3, '0')}`,
+      name: [
+        'Grace Yellow',
+        'Emma Red',
+        'Alice Green',
+        'David Black',
+        'Hank Violet',
+        'Ivy Indigo',
+        'Frank Orange',
+        'Bob White',
+        'Jack Brown',
+      ][i % 9],
+      order: [
+        'Tomatoes',
+        'Cabbage',
+        'Spinach',
+        'Peppers',
+        'Lettuce',
+        'Onions',
+        'Broccoli',
+        'Cucumbers',
+        'Carrots',
+      ][i % 9],
+      quantity: Math.floor(Math.random() * 10) + 1,
+      price: Number((Math.random() * 5).toFixed(2)), // Round to 2 decimal places
+      status: 'Pending',
+    }))
+  );
 
   // Filter pre-orders to only show Pending status
   const filteredPreOrders = preOrders.filter(
     (preOrder) =>
       preOrder.status === 'Pending' &&
       (preOrder.productId.toLowerCase().includes(searchTerm.toLowerCase()) ||
-       preOrder.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-       preOrder.order.toLowerCase().includes(searchTerm.toLowerCase()) ||
-       preOrder.quantity.toString().includes(searchTerm) ||
-       (preOrder.price && preOrder.price.toString().includes(searchTerm)))
+        preOrder.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        preOrder.order.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        preOrder.quantity.toString().includes(searchTerm) ||
+        preOrder.price.toString().includes(searchTerm) ||
+        Number((preOrder.quantity * preOrder.price).toFixed(2)).toString().includes(searchTerm))
   );
 
   // Sort the filtered pre-orders
@@ -35,12 +59,11 @@ function PendingPreOrders() {
     const key = sortConfig.key;
     const direction = sortConfig.direction === 'asc' ? 1 : -1;
 
-    // Handle cases where price might be undefined or zero
-    if (key === 'price') {
-      const aPrice = a[key] ?? 0;
-      const bPrice = b[key] ?? 0;
-      if (aPrice < bPrice) return -direction;
-      if (aPrice > bPrice) return direction;
+    if (key === 'totalPrice') {
+      const totalPriceA = Number((a.quantity * a.price).toFixed(2));
+      const totalPriceB = Number((b.quantity * b.price).toFixed(2));
+      if (totalPriceA < totalPriceB) return -direction;
+      if (totalPriceA > totalPriceB) return direction;
       return 0;
     }
 
@@ -68,9 +91,7 @@ function PendingPreOrders() {
         // Simulate API call
         await new Promise((resolve) => setTimeout(resolve, 1000));
         // Remove the approved pre-order from the list
-        const updatedPreOrders = preOrders.filter(
-          (p) => !(p.productId === preOrder.productId && p.name === preOrder.name)
-        );
+        const updatedPreOrders = preOrders.filter((p) => p.id !== preOrder.id);
         setPreOrders(updatedPreOrders);
         // Adjust currentPage if the current page becomes empty
         if (paginatedPreOrders.length === 1 && currentPage > 1) {
@@ -93,9 +114,7 @@ function PendingPreOrders() {
         // Simulate API call
         await new Promise((resolve) => setTimeout(resolve, 1000));
         // Remove the rejected pre-order from the list
-        const updatedPreOrders = preOrders.filter(
-          (p) => !(p.productId === preOrder.productId && p.name === preOrder.name)
-        );
+        const updatedPreOrders = preOrders.filter((p) => p.id !== preOrder.id);
         setPreOrders(updatedPreOrders);
         // Adjust currentPage if the current page becomes empty
         if (paginatedPreOrders.length === 1 && currentPage > 1) {
@@ -113,7 +132,7 @@ function PendingPreOrders() {
   const handleRecordsPerPageChange = (e) => {
     const value = e.target.value === '100' ? sortedPreOrders.length : Number(e.target.value);
     setRecordsPerPage(value);
-    setCurrentPage(1); // Reset to first page when changing records per page
+    setCurrentPage(1);
   };
 
   const handlePageChange = (page) => {
@@ -122,16 +141,17 @@ function PendingPreOrders() {
     }
   };
 
+ 
+
   const renderPagination = () => {
     if (totalPages <= 1) return null;
 
     const pageNumbers = [];
-    const maxPagesToShow = 5; // Show current page ± 2
+    const maxPagesToShow = 5;
     const halfRange = Math.floor(maxPagesToShow / 2);
     let startPage = Math.max(1, currentPage - halfRange);
     let endPage = Math.min(totalPages, startPage + maxPagesToShow - 1);
 
-    // Adjust startPage if endPage is at the totalPages
     if (endPage === totalPages) {
       startPage = Math.max(1, endPage - maxPagesToShow + 1);
     }
@@ -190,6 +210,7 @@ function PendingPreOrders() {
       <div className="main-content">
         <h1>PENDING PRE-ORDERS</h1>
         <div className="search-bar">
+         
           <select
             value={recordsPerPage}
             onChange={handleRecordsPerPageChange}
@@ -212,20 +233,53 @@ function PendingPreOrders() {
           <table>
             <thead>
               <tr>
-                <th onClick={() => sortData('productId')} className={sortConfig.key === 'productId' ? 'sorted' : ''}>
-                  Product ID {sortConfig.key === 'productId' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
+                <th
+                  onClick={() => sortData('productId')}
+                  className={sortConfig.key === 'productId' ? 'sorted' : ''}
+                >
+                  Product ID{' '}
+                  {sortConfig.key === 'productId' &&
+                    (sortConfig.direction === 'asc' ? '↑' : '↓')}
                 </th>
-                <th onClick={() => sortData('name')} className={sortConfig.key === 'name' ? 'sorted' : ''}>
-                  Name {sortConfig.key === 'name' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
+                <th
+                  onClick={() => sortData('name')}
+                  className={sortConfig.key === 'name' ? 'sorted' : ''}
+                >
+                  Name{' '}
+                  {sortConfig.key === 'name' &&
+                    (sortConfig.direction === 'asc' ? '↑' : '↓')}
                 </th>
-                <th onClick={() => sortData('order')} className={sortConfig.key === 'order' ? 'sorted' : ''}>
-                  Pre-Order {sortConfig.key === 'order' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
+                <th
+                  onClick={() => sortData('order')}
+                  className={sortConfig.key === 'order' ? 'sorted' : ''}
+                >
+                  Pre-Order{' '}
+                  {sortConfig.key === 'order' &&
+                    (sortConfig.direction === 'asc' ? '↑' : '↓')}
                 </th>
-                <th onClick={() => sortData('quantity')} className={sortConfig.key === 'quantity' ? 'sorted' : ''}>
-                  Quantity {sortConfig.key === 'quantity' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
+                <th
+                  onClick={() => sortData('quantity')}
+                  className={sortConfig.key === 'quantity' ? 'sorted' : ''}
+                >
+                  Quantity (kg){' '}
+                  {sortConfig.key === 'quantity' &&
+                    (sortConfig.direction === 'asc' ? '↑' : '↓')}
                 </th>
-                <th onClick={() => sortData('price')} className={sortConfig.key === 'price' ? 'sorted' : ''}>
-                  Price {sortConfig.key === 'price' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
+                <th
+                  onClick={() => sortData('price')}
+                  className={sortConfig.key === 'price' ? 'sorted' : ''}
+                >
+                  Price per Kilo{' '}
+                  {sortConfig.key === 'price' &&
+                    (sortConfig.direction === 'asc' ? '↑' : '↓')}
+                </th>
+                <th
+                  onClick={() => sortData('totalPrice')}
+                  className={sortConfig.key === 'totalPrice' ? 'sorted' : ''}
+                >
+                  Total Price{' '}
+                  {sortConfig.key === 'totalPrice' &&
+                    (sortConfig.direction === 'asc' ? '↑' : '↓')}
                 </th>
                 <th>Actions</th>
               </tr>
@@ -233,12 +287,18 @@ function PendingPreOrders() {
             <tbody>
               {paginatedPreOrders.length > 0 ? (
                 paginatedPreOrders.map((preOrder, index) => (
-                  <tr key={index} className={`status-${preOrder.status.toLowerCase().replace(' ', '-')}`}>
+                  <tr
+                    key={preOrder.id}
+                    className={`status-${preOrder.status
+                      .toLowerCase()
+                      .replace(' ', '-')}`}
+                  >
                     <td>{preOrder.productId}</td>
                     <td>{preOrder.name}</td>
                     <td>{preOrder.order}</td>
                     <td>{preOrder.quantity}kg</td>
-                    <td>₱{preOrder.price.toFixed(2)}</td>
+                    <td>₱{Number(preOrder.price.toFixed(2))}</td>
+                    <td>₱{Number((preOrder.quantity * preOrder.price).toFixed(2))}</td>
                     <td>
                       <button
                         className="action-btn approve"
@@ -271,7 +331,7 @@ function PendingPreOrders() {
                 ))
               ) : (
                 <tr>
-                  <td colSpan="6" style={{ textAlign: 'center' }}>
+                  <td colSpan="7" style={{ textAlign: 'center' }}>
                     No pending pre-orders found.
                   </td>
                 </tr>

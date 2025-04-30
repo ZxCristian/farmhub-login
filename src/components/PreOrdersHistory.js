@@ -10,16 +10,22 @@ function PreOrdersHistory() {
   const [recordsPerPage, setRecordsPerPage] = useState(10);
   const [currentPage, setCurrentPage] = useState(1);
 
-  // Sample data for pre-order history (with vegetables and dates)
-  const [preOrders] = useState(Array.from({ length: 10000 }, (_, index) => ({
-    productId: `V${100 + index + 1}`,
-    farmer: `Farmer ${index + 1}`,
-    preOrder: ['Tomatoes', 'Cucumbers', 'Potatoes', 'Eggplant', 'Onions'][index % 5],
-    quantity: Math.floor(Math.random() * 20) + 1,
-    price: Math.random() * 5 + 1,
-    status: ['Completed', 'Cancelled'][index % 2],
-    date: `2025-${String(Math.floor(Math.random() * 12) + 1).padStart(2, '0')}-${String(Math.floor(Math.random() * 28) + 1).padStart(2, '0')}`,
-  })));
+  // Sample data for pre-order history (50,000 records, added unique id and contract image)
+  const [preOrders] = useState(
+    Array.from({ length: 50000 }, (_, index) => ({
+      id: `preorder-${index + 1}`, // Unique identifier
+      productId: `V${100 + index + 1}`,
+      farmer: `Farmer ${index + 1}`,
+      preOrder: ['Tomatoes', 'Cucumbers', 'Potatoes', 'Eggplant', 'Onions'][index % 5],
+      quantity: Math.floor(Math.random() * 20) + 1,
+      price: Number((Math.random() * 5 + 1).toFixed(2)), // Round to 2 decimal places
+      status: ['Completed', 'Cancelled'][index % 2],
+      date: `2025-${String(Math.floor(Math.random() * 12) + 1).padStart(2, '0')}-${String(
+        Math.floor(Math.random() * 28) + 1
+      ).padStart(2, '0')}`,
+      contractImage: `https://images.examples.com/wp-content/uploads/2018/08/Simple-Contract-Agreement-Letter-Example.jpg`, // Placeholder contract image
+    }))
+  );
 
   // Filter pre-orders based on the search term
   const filteredPreOrders = preOrders.filter(
@@ -28,7 +34,7 @@ function PreOrdersHistory() {
       preOrder.farmer.toLowerCase().includes(searchTerm.toLowerCase()) ||
       preOrder.preOrder.toLowerCase().includes(searchTerm.toLowerCase()) ||
       preOrder.quantity.toString().includes(searchTerm) ||
-      (preOrder.quantity * preOrder.price).toString().includes(searchTerm) ||
+      Number((preOrder.quantity * preOrder.price).toFixed(2)).toString().includes(searchTerm) ||
       preOrder.status.toLowerCase().includes(searchTerm.toLowerCase()) ||
       preOrder.date.toLowerCase().includes(searchTerm.toLowerCase())
   );
@@ -39,8 +45,8 @@ function PreOrdersHistory() {
     const direction = sortConfig.direction === 'asc' ? 1 : -1;
 
     if (key === 'totalPrice') {
-      const totalA = a.quantity * a.price;
-      const totalB = b.quantity * b.price;
+      const totalA = Number((a.quantity * a.price).toFixed(2));
+      const totalB = Number((b.quantity * b.price).toFixed(2));
       if (totalA < totalB) return -direction;
       if (totalA > totalB) return direction;
       return 0;
@@ -73,7 +79,7 @@ function PreOrdersHistory() {
   const handleRecordsPerPageChange = (e) => {
     const value = e.target.value === '100' ? sortedPreOrders.length : Number(e.target.value);
     setRecordsPerPage(value);
-    setCurrentPage(1); // Reset to first page when changing records per page
+    setCurrentPage(1);
   };
 
   const handlePageChange = (page) => {
@@ -89,8 +95,8 @@ function PreOrdersHistory() {
         'Product ID': preOrder.productId,
         Farmer: preOrder.farmer,
         'Pre-Order': preOrder.preOrder,
-        Quantity: preOrder.quantity,
-        'Total Price': (preOrder.quantity * preOrder.price).toFixed(2),
+        'Quantity (kg)': preOrder.quantity,
+        'Total Price': Number((preOrder.quantity * preOrder.price).toFixed(2)),
         Status: preOrder.status,
         Date: preOrder.date,
       }))
@@ -198,39 +204,74 @@ function PreOrdersHistory() {
           <table>
             <thead>
               <tr>
-                <th onClick={() => sortData('productId')} className={sortConfig.key === 'productId' ? 'sorted' : ''}>
-                  Product ID {sortConfig.key === 'productId' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
+                <th
+                  onClick={() => sortData('productId')}
+                  className={sortConfig.key === 'productId' ? 'sorted' : ''}
+                >
+                  Product ID{' '}
+                  {sortConfig.key === 'productId' &&
+                    (sortConfig.direction === 'asc' ? '↑' : '↓')}
                 </th>
-                <th onClick={() => sortData('farmer')} className={sortConfig.key === 'farmer' ? 'sorted' : ''}>
-                  Farmer {sortConfig.key === 'farmer' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
+                <th
+                  onClick={() => sortData('farmer')}
+                  className={sortConfig.key === 'farmer' ? 'sorted' : ''}
+                >
+                  Farmer{' '}
+                  {sortConfig.key === 'farmer' &&
+                    (sortConfig.direction === 'asc' ? '↑' : '↓')}
                 </th>
-                <th onClick={() => sortData('preOrder')} className={sortConfig.key === 'preOrder' ? 'sorted' : ''}>
-                  Pre-Order {sortConfig.key === 'preOrder' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
+                <th
+                  onClick={() => sortData('preOrder')}
+                  className={sortConfig.key === 'preOrder' ? 'sorted' : ''}
+                >
+                  Pre-Order{' '}
+                  {sortConfig.key === 'preOrder' &&
+                    (sortConfig.direction === 'asc' ? '↑' : '↓')}
                 </th>
-                <th onClick={() => sortData('quantity')} className={sortConfig.key === 'quantity' ? 'sorted' : ''}>
-                  Quantity {sortConfig.key === 'quantity' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
+                <th
+                  onClick={() => sortData('quantity')}
+                  className={sortConfig.key === 'quantity' ? 'sorted' : ''}
+                >
+                  Quantity (kg){' '}
+                  {sortConfig.key === 'quantity' &&
+                    (sortConfig.direction === 'asc' ? '↑' : '↓')}
                 </th>
-                <th onClick={() => sortData('totalPrice')} className={sortConfig.key === 'totalPrice' ? 'sorted' : ''}>
-                  Total Price {sortConfig.key === 'totalPrice' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
+                <th
+                  onClick={() => sortData('totalPrice')}
+                  className={sortConfig.key === 'totalPrice' ? 'sorted' : ''}
+                >
+                  Total Price{' '}
+                  {sortConfig.key === 'totalPrice' &&
+                    (sortConfig.direction === 'asc' ? '↑' : '↓')}
                 </th>
-                <th onClick={() => sortData('status')} className={sortConfig.key === 'status' ? 'sorted' : ''}>
-                  Status {sortConfig.key === 'status' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
+                <th
+                  onClick={() => sortData('status')}
+                  className={sortConfig.key === 'status' ? 'sorted' : ''}
+                >
+                  Status{' '}
+                  {sortConfig.key === 'status' &&
+                    (sortConfig.direction === 'asc' ? '↑' : '↓')}
                 </th>
-                <th onClick={() => sortData('date')} className={sortConfig.key === 'date' ? 'sorted' : ''}>
-                  Date {sortConfig.key === 'date' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
+                <th
+                  onClick={() => sortData('date')}
+                  className={sortConfig.key === 'date' ? 'sorted' : ''}
+                >
+                  Date{' '}
+                  {sortConfig.key === 'date' &&
+                    (sortConfig.direction === 'asc' ? '↑' : '↓')}
                 </th>
                 <th>Actions</th>
               </tr>
             </thead>
             <tbody>
               {paginatedPreOrders.length > 0 ? (
-                paginatedPreOrders.map((preOrder, index) => (
-                  <tr key={index}>
+                paginatedPreOrders.map((preOrder) => (
+                  <tr key={preOrder.id}>
                     <td>{preOrder.productId}</td>
                     <td>{preOrder.farmer}</td>
                     <td>{preOrder.preOrder}</td>
                     <td>{preOrder.quantity}kg</td>
-                    <td>₱{(preOrder.quantity * preOrder.price).toFixed(2)}</td>
+                    <td>₱{Number((preOrder.quantity * preOrder.price).toFixed(2))}</td>
                     <td>{preOrder.status}</td>
                     <td>{preOrder.date}</td>
                     <td>
@@ -267,11 +308,17 @@ function PreOrdersHistory() {
                 <p><strong>Product ID:</strong> {selectedPreOrder.productId}</p>
                 <p><strong>Farmer:</strong> {selectedPreOrder.farmer}</p>
                 <p><strong>Pre-Order:</strong> {selectedPreOrder.preOrder}</p>
-                <p><strong>Quantity:</strong> {selectedPreOrder.quantity}</p>
-                <p><strong>Price per Unit:</strong> ₱{selectedPreOrder.price.toFixed(2)}</p>
-                <p><strong>Total Price:</strong> ₱{(selectedPreOrder.quantity * selectedPreOrder.price).toFixed(2)}</p>
+                <p><strong>Quantity:</strong> {selectedPreOrder.quantity}kg</p>
+                <p><strong>Price per Unit:</strong> ₱{Number(selectedPreOrder.price.toFixed(2))}</p>
+                <p><strong>Total Price:</strong> ₱{Number((selectedPreOrder.quantity * selectedPreOrder.price).toFixed(2))}</p>
                 <p><strong>Status:</strong> {selectedPreOrder.status}</p>
                 <p><strong>Date:</strong> {selectedPreOrder.date}</p>
+                <p><strong>Contract:</strong></p>
+                <img
+                  src={selectedPreOrder.contractImage}
+                  alt="Contract"
+                  style={{ maxWidth: '300px', height: 'auto', marginTop: '10px' }}
+                />
               </div>
               <div className="modal-footer">
                 <button className="btn-cancel" onClick={closeModal}>

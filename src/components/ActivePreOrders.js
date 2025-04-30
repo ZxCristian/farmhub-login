@@ -10,37 +10,40 @@ function ActivePreOrders() {
   const [recordsPerPage, setRecordsPerPage] = useState(10);
   const [currentPage, setCurrentPage] = useState(1);
 
-  // Sample data for active vegetable pre-orders with effective date and buyer
-  const [preOrders] = useState(Array.from({ length: 10000 }, (_, index) => ({
-    productId: `V${String(index + 1).padStart(3, '0')}`,
-    farmer: `Farmer ${index + 1}`,
-    preOrder: `Vegetable ${index + 1}`,
-    quantity: Math.floor(Math.random() * 10) + 1,
-    price: Math.random() * 10 + 1,
-    effectiveDate: `2025-04-${String((index % 30) + 1).padStart(2, '0')}`,
-    buyer: `Buyer ${index + 1}`,
-  })));
+  // Sample data for active vegetable pre-orders (reduced to 50 records, added unique id)
+  const [preOrders] = useState(
+    Array.from({ length: 50 }, (_, index) => ({
+      id: `preorder-${index + 1}`, // Unique identifier
+      productId: `V${String(index + 1).padStart(3, '0')}`,
+      farmer: `Farmer ${index + 1}`,
+      preOrder: `Vegetable ${index + 1}`,
+      quantity: Math.floor(Math.random() * 10) + 1,
+      price: Number((Math.random() * 10 + 1).toFixed(2)), // Round to 2 decimal places
+      effectiveDate: `2025-04-${String((index % 30) + 1).padStart(2, '0')}`,
+      buyer: `Buyer ${index + 1}`,
+    }))
+  );
 
-  // Filter pre-orders based on the search term (only searched results are displayed)
+  // Filter pre-orders based on the search term
   const filteredPreOrders = preOrders.filter(
     (preOrder) =>
       preOrder.productId.toLowerCase().includes(searchTerm.toLowerCase()) ||
       preOrder.farmer.toLowerCase().includes(searchTerm.toLowerCase()) ||
       preOrder.preOrder.toLowerCase().includes(searchTerm.toLowerCase()) ||
       preOrder.quantity.toString().includes(searchTerm) ||
-      (preOrder.quantity * preOrder.price).toString().includes(searchTerm) ||
+      Number((preOrder.quantity * preOrder.price).toFixed(2)).toString().includes(searchTerm) ||
       preOrder.effectiveDate.toLowerCase().includes(searchTerm.toLowerCase()) ||
       preOrder.buyer.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  // Sort the filtered pre-orders (only the searched results are sorted)
+  // Sort the filtered pre-orders
   const sortedPreOrders = [...filteredPreOrders].sort((a, b) => {
     const key = sortConfig.key;
     const direction = sortConfig.direction === 'asc' ? 1 : -1;
 
     if (key === 'totalPrice') {
-      const totalA = a.quantity * a.price;
-      const totalB = b.quantity * b.price;
+      const totalA = Number((a.quantity * a.price).toFixed(2));
+      const totalB = Number((b.quantity * b.price).toFixed(2));
       if (totalA < totalB) return -direction;
       if (totalA > totalB) return direction;
       return 0;
@@ -51,7 +54,7 @@ function ActivePreOrders() {
     return 0;
   });
 
-  // Pagination logic (paginates only the searched and sorted results)
+  // Pagination logic
   const totalPages = Math.max(1, Math.ceil(sortedPreOrders.length / recordsPerPage));
   const startIndex = (currentPage - 1) * recordsPerPage;
   const paginatedPreOrders = sortedPreOrders.slice(startIndex, startIndex + recordsPerPage);
@@ -73,7 +76,7 @@ function ActivePreOrders() {
   const handleRecordsPerPageChange = (e) => {
     const value = e.target.value === '100' ? sortedPreOrders.length : Number(e.target.value);
     setRecordsPerPage(value);
-    setCurrentPage(1); // Reset to first page when changing records per page
+    setCurrentPage(1);
   };
 
   const handlePageChange = (page) => {
@@ -82,19 +85,21 @@ function ActivePreOrders() {
     }
   };
 
-  // Excel export function (exports only the sorted and filtered results)
+  // Excel export function
   const exportToExcel = () => {
-    const worksheet = XLSX.utils.json_to_sheet(sortedPreOrders.map(preOrder => ({
-      'Product ID': preOrder.productId,
-      'Farmer': preOrder.farmer,
-      'Buyer': preOrder.buyer,
-      'Pre-Order': preOrder.preOrder,
-      'Quantity': preOrder.quantity,
-      'Total Price': (preOrder.quantity * preOrder.price).toFixed(2),
-      'Effective Date': preOrder.effectiveDate,
-    })));
+    const worksheet = XLSX.utils.json_to_sheet(
+      sortedPreOrders.map((preOrder) => ({
+        'Product ID': preOrder.productId,
+        Farmer: preOrder.farmer,
+        Buyer: preOrder.buyer,
+        'Pre-Order': preOrder.preOrder,
+        'Quantity (kg)': preOrder.quantity,
+        'Total Price': Number((preOrder.quantity * preOrder.price).toFixed(2)),
+        'Effective Date': preOrder.effectiveDate,
+      }))
+    );
     const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, 'PreOrders');
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'ActivePreOrders');
     XLSX.writeFile(workbook, 'ActivePreOrders.xlsx');
   };
 
@@ -192,45 +197,79 @@ function ActivePreOrders() {
             onChange={(e) => setSearchTerm(e.target.value)}
           />
         </div>
-        {/* Table displays only the searched and sorted pre-orders */}
         <div className="table-container">
           <table>
             <thead>
               <tr>
-                <th onClick={() => sortData('productId')} className={sortConfig.key === 'productId' ? 'sorted' : ''}>
-                  Product ID {sortConfig.key === 'productId' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
+                <th
+                  onClick={() => sortData('productId')}
+                  className={sortConfig.key === 'productId' ? 'sorted' : ''}
+                >
+                  Product ID{' '}
+                  {sortConfig.key === 'productId' &&
+                    (sortConfig.direction === 'asc' ? '↑' : '↓')}
                 </th>
-                <th onClick={() => sortData('farmer')} className={sortConfig.key === 'farmer' ? 'sorted' : ''}>
-                  Farmer {sortConfig.key === 'farmer' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
+                <th
+                  onClick={() => sortData('farmer')}
+                  className={sortConfig.key === 'farmer' ? 'sorted' : ''}
+                >
+                  Farmer{' '}
+                  {sortConfig.key === 'farmer' &&
+                    (sortConfig.direction === 'asc' ? '↑' : '↓')}
                 </th>
-                <th onClick={() => sortData('buyer')} className={sortConfig.key === 'buyer' ? 'sorted' : ''}>
-                  Buyer {sortConfig.key === 'buyer' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
+                <th
+                  onClick={() => sortData('buyer')}
+                  className={sortConfig.key === 'buyer' ? 'sorted' : ''}
+                >
+                  Buyer{' '}
+                  {sortConfig.key === 'buyer' &&
+                    (sortConfig.direction === 'asc' ? '↑' : '↓')}
                 </th>
-                <th onClick={() => sortData('preOrder')} className={sortConfig.key === 'preOrder' ? 'sorted' : ''}>
-                  Pre-Order {sortConfig.key === 'preOrder' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
+                <th
+                  onClick={() => sortData('preOrder')}
+                  className={sortConfig.key === 'preOrder' ? 'sorted' : ''}
+                >
+                  Pre-Order{' '}
+                  {sortConfig.key === 'preOrder' &&
+                    (sortConfig.direction === 'asc' ? '↑' : '↓')}
                 </th>
-                <th onClick={() => sortData('quantity')} className={sortConfig.key === 'quantity' ? 'sorted' : ''}>
-                  Quantity {sortConfig.key === 'quantity' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
+                <th
+                  onClick={() => sortData('quantity')}
+                  className={sortConfig.key === 'quantity' ? 'sorted' : ''}
+                >
+                  Quantity (kg){' '}
+                  {sortConfig.key === 'quantity' &&
+                    (sortConfig.direction === 'asc' ? '↑' : '↓')}
                 </th>
-                <th onClick={() => sortData('totalPrice')} className={sortConfig.key === 'totalPrice' ? 'sorted' : ''}>
-                  Total Price {sortConfig.key === 'totalPrice' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
+                <th
+                  onClick={() => sortData('totalPrice')}
+                  className={sortConfig.key === 'totalPrice' ? 'sorted' : ''}
+                >
+                  Total Price{' '}
+                  {sortConfig.key === 'totalPrice' &&
+                    (sortConfig.direction === 'asc' ? '↑' : '↓')}
                 </th>
-                <th onClick={() => sortData('effectiveDate')} className={sortConfig.key === 'effectiveDate' ? 'sorted' : ''}>
-                  Effective Date {sortConfig.key === 'effectiveDate' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
+                <th
+                  onClick={() => sortData('effectiveDate')}
+                  className={sortConfig.key === 'effectiveDate' ? 'sorted' : ''}
+                >
+                  Effective Date{' '}
+                  {sortConfig.key === 'effectiveDate' &&
+                    (sortConfig.direction === 'asc' ? '↑' : '↓')}
                 </th>
                 <th>Actions</th>
               </tr>
             </thead>
             <tbody>
               {paginatedPreOrders.length > 0 ? (
-                paginatedPreOrders.map((preOrder, index) => (
-                  <tr key={index}>
+                paginatedPreOrders.map((preOrder) => (
+                  <tr key={preOrder.id}>
                     <td>{preOrder.productId}</td>
                     <td>{preOrder.farmer}</td>
                     <td>{preOrder.buyer}</td>
                     <td>{preOrder.preOrder}</td>
                     <td>{preOrder.quantity}kg</td>
-                    <td>₱{(preOrder.quantity * preOrder.price).toFixed(2)}</td>
+                    <td>₱{Number((preOrder.quantity * preOrder.price).toFixed(2))}</td>
                     <td>{preOrder.effectiveDate}</td>
                     <td>
                       <button
@@ -263,13 +302,23 @@ function ActivePreOrders() {
                 </button>
               </div>
               <div className="modal-body">
+                <img
+                  src="https://images.examples.com/wp-content/uploads/2018/08/Simple-Contract-Agreement-Letter-Example.jpg"
+                  alt="Contract document for pre-order"
+                  style={{
+                    maxWidth: '100%',
+                    height: 'auto',
+                    marginBottom: '20px',
+                    borderRadius: '8px',
+                  }}
+                />
                 <p><strong>Product ID:</strong> {selectedPreOrder.productId}</p>
                 <p><strong>Farmer:</strong> {selectedPreOrder.farmer}</p>
                 <p><strong>Buyer:</strong> {selectedPreOrder.buyer}</p>
                 <p><strong>Pre-Order:</strong> {selectedPreOrder.preOrder}</p>
-                <p><strong>Quantity:</strong> {selectedPreOrder.quantity}</p>
-                <p><strong>Price per Unit:</strong> ₱{selectedPreOrder.price.toFixed(2)}</p>
-                <p><strong>Total Price:</strong> ₱{(selectedPreOrder.quantity * selectedPreOrder.price).toFixed(2)}</p>
+                <p><strong>Quantity:</strong> {selectedPreOrder.quantity}kg</p>
+                <p><strong>Price per Unit:</strong> ₱{Number(selectedPreOrder.price.toFixed(2))}</p>
+                <p><strong>Total Price:</strong> ₱{Number((selectedPreOrder.quantity * selectedPreOrder.price).toFixed(2))}</p>
                 <p><strong>Effective Date:</strong> {selectedPreOrder.effectiveDate}</p>
               </div>
               <div className="modal-footer">

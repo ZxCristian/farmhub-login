@@ -9,25 +9,48 @@ function PendingOrders() {
   const [recordsPerPage, setRecordsPerPage] = useState(10);
   const [currentPage, setCurrentPage] = useState(1);
 
-  // Sample data for pending vegetable orders
-  const [orders, setOrders] = useState(Array.from({ length: 10000 }, (_, i) => ({
-    productId: `V${String(i + 1).padStart(3, '0')}`,
-    name: ['Grace Yellow', 'Emma Red', 'Alice Green', 'David Black', 'Hank Violet', 'Ivy Indigo', 'Frank Orange', 'Bob White', 'Jack Brown'][i % 9],
-    order: ['Tomatoes', 'Cabbage', 'Spinach', 'Peppers', 'Lettuce', 'Onions', 'Broccoli', 'Cucumbers', 'Carrots'][i % 9],
-    quantity: Math.floor(Math.random() * 10) + 1,
-    price: parseFloat((Math.random() * 5).toFixed(2)),
-    status: 'Pending',
-  })));
+  // Sample data for pending vegetable orders (reduced to 50 records, added unique id, renamed quantity to maxQuantity)
+  const [orders, setOrders] = useState(
+    Array.from({ length: 50000 }, (_, i) => ({
+      id: `order-${i + 1}`, // Unique identifier
+      productId: `V${String(i + 1).padStart(3, '0')}`,
+      name: [
+        'Grace Yellow',
+        'Emma Red',
+        'Alice Green',
+        'David Black',
+        'Hank Violet',
+        'Ivy Indigo',
+        'Frank Orange',
+        'Bob White',
+        'Jack Brown',
+      ][i % 9],
+      order: [
+        'Tomatoes',
+        'Cabbage',
+        'Spinach',
+        'Peppers',
+        'Lettuce',
+        'Onions',
+        'Broccoli',
+        'Cucumbers',
+        'Carrots',
+      ][i % 9],
+      maxQuantity: Math.floor(Math.random() * 10) + 1, // Renamed from quantity
+      price: Number((Math.random() * 5).toFixed(2)), // Round to 2 decimal places
+      status: 'Pending',
+    }))
+  );
 
   // Filter orders to only show Pending status
   const filteredOrders = orders.filter(
     (order) =>
       order.status === 'Pending' &&
       (order.productId.toLowerCase().includes(searchTerm.toLowerCase()) ||
-       order.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-       order.order.toLowerCase().includes(searchTerm.toLowerCase()) ||
-       order.quantity.toString().includes(searchTerm) ||
-       order.price.toString().includes(searchTerm))
+        order.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        order.order.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        order.maxQuantity.toString().includes(searchTerm) ||
+        order.price.toString().includes(searchTerm))
   );
 
   // Sort the filtered orders
@@ -35,8 +58,10 @@ function PendingOrders() {
     const key = sortConfig.key;
     const direction = sortConfig.direction === 'asc' ? 1 : -1;
 
-    if (a[key] < b[key]) return -direction;
-    if (a[key] > b[key]) return direction;
+    // Handle maxQuantity key (replaces quantity)
+    const sortKey = key === 'maxQuantity' ? 'maxQuantity' : key;
+    if (a[sortKey] < b[sortKey]) return -direction;
+    if (a[sortKey] > b[sortKey]) return direction;
     return 0;
   });
 
@@ -59,9 +84,7 @@ function PendingOrders() {
         // Simulate API call
         await new Promise((resolve) => setTimeout(resolve, 1000));
         // Remove the approved order from the list
-        const updatedOrders = orders.filter(
-          (o) => !(o.productId === order.productId && o.name === order.name)
-        );
+        const updatedOrders = orders.filter((o) => o.id !== order.id);
         setOrders(updatedOrders);
         // Adjust currentPage if the current page becomes empty
         if (paginatedOrders.length === 1 && currentPage > 1) {
@@ -84,9 +107,7 @@ function PendingOrders() {
         // Simulate API call
         await new Promise((resolve) => setTimeout(resolve, 1000));
         // Remove the rejected order from the list
-        const updatedOrders = orders.filter(
-          (o) => !(o.productId === order.productId && o.name === order.name)
-        );
+        const updatedOrders = orders.filter((o) => o.id !== order.id);
         setOrders(updatedOrders);
         // Adjust currentPage if the current page becomes empty
         if (paginatedOrders.length === 1 && currentPage > 1) {
@@ -104,7 +125,7 @@ function PendingOrders() {
   const handleRecordsPerPageChange = (e) => {
     const value = e.target.value === '100' ? sortedOrders.length : Number(e.target.value);
     setRecordsPerPage(value);
-    setCurrentPage(1); // Reset to first page when changing records per page
+    setCurrentPage(1);
   };
 
   const handlePageChange = (page) => {
@@ -113,16 +134,16 @@ function PendingOrders() {
     }
   };
 
+
   const renderPagination = () => {
     if (totalPages <= 1) return null;
 
     const pageNumbers = [];
-    const maxPagesToShow = 5; // Show current page ± 2
+    const maxPagesToShow = 5;
     const halfRange = Math.floor(maxPagesToShow / 2);
     let startPage = Math.max(1, currentPage - halfRange);
     let endPage = Math.min(totalPages, startPage + maxPagesToShow - 1);
 
-    // Adjust startPage if endPage is at the totalPages
     if (endPage === totalPages) {
       startPage = Math.max(1, endPage - maxPagesToShow + 1);
     }
@@ -181,6 +202,7 @@ function PendingOrders() {
       <div className="main-content">
         <h1>PENDING ORDERS</h1>
         <div className="search-bar">
+        
           <select
             value={recordsPerPage}
             onChange={handleRecordsPerPageChange}
@@ -203,20 +225,45 @@ function PendingOrders() {
           <table>
             <thead>
               <tr>
-                <th onClick={() => sortData('productId')} className={sortConfig.key === 'productId' ? 'sorted' : ''}>
-                  Product ID {sortConfig.key === 'productId' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
+                <th
+                  onClick={() => sortData('productId')}
+                  className={sortConfig.key === 'productId' ? 'sorted' : ''}
+                >
+                  Product ID{' '}
+                  {sortConfig.key === 'productId' &&
+                    (sortConfig.direction === 'asc' ? '↑' : '↓')}
                 </th>
-                <th onClick={() => sortData('name')} className={sortConfig.key === 'name' ? 'sorted' : ''}>
-                  Name {sortConfig.key === 'name' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
+                <th
+                  onClick={() => sortData('name')}
+                  className={sortConfig.key === 'name' ? 'sorted' : ''}
+                >
+                  Name{' '}
+                  {sortConfig.key === 'name' &&
+                    (sortConfig.direction === 'asc' ? '↑' : '↓')}
                 </th>
-                <th onClick={() => sortData('order')} className={sortConfig.key === 'order' ? 'sorted' : ''}>
-                  Order {sortConfig.key === 'order' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
+                <th
+                  onClick={() => sortData('order')}
+                  className={sortConfig.key === 'order' ? 'sorted' : ''}
+                >
+                  Order{' '}
+                  {sortConfig.key === 'order' &&
+                    (sortConfig.direction === 'asc' ? '↑' : '↓')}
                 </th>
-                <th onClick={() => sortData('quantity')} className={sortConfig.key === 'quantity' ? 'sorted' : ''}>
-                  Quantity {sortConfig.key === 'quantity' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
+                <th
+                  onClick={() => sortData('maxQuantity')}
+                  className={sortConfig.key === 'maxQuantity' ? 'sorted' : ''}
+                >
+                  Max Quantity (kg){' '}
+                  {sortConfig.key === 'maxQuantity' &&
+                    (sortConfig.direction === 'asc' ? '↑' : '↓')}
                 </th>
-                <th onClick={() => sortData('price')} className={sortConfig.key === 'price' ? 'sorted' : ''}>
-                  Price {sortConfig.key === 'price' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
+                <th
+                  onClick={() => sortData('price')}
+                  className={sortConfig.key === 'price' ? 'sorted' : ''}
+                >
+                  Price per Kilo{' '}
+                  {sortConfig.key === 'price' &&
+                    (sortConfig.direction === 'asc' ? '↑' : '↓')}
                 </th>
                 <th>Actions</th>
               </tr>
@@ -224,12 +271,17 @@ function PendingOrders() {
             <tbody>
               {paginatedOrders.length > 0 ? (
                 paginatedOrders.map((order, index) => (
-                  <tr key={index} className={`status-${order.status.toLowerCase().replace(' ', '-')}`}>
+                  <tr
+                    key={order.id}
+                    className={`status-${order.status
+                      .toLowerCase()
+                      .replace(' ', '-')}`}
+                  >
                     <td>{order.productId}</td>
                     <td>{order.name}</td>
                     <td>{order.order}</td>
-                    <td>{order.quantity}kg</td>
-                    <td>₱{order.price.toFixed(2)}</td>
+                    <td>{order.maxQuantity}kg</td>
+                    <td>₱{Number(order.price.toFixed(2))}</td>
                     <td>
                       <button
                         className="action-btn approve"

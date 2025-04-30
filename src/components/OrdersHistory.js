@@ -10,16 +10,19 @@ function OrdersHistory() {
   const [recordsPerPage, setRecordsPerPage] = useState(10);
   const [currentPage, setCurrentPage] = useState(1);
 
-  // Sample data for order history (with vegetables and dates)
+  // Sample data for order history (reduced to 50 records, added unique id)
   const [orders] = useState(
-    Array.from({ length: 10000 }, (_, index) => ({
+    Array.from({ length: 500 }, (_, index) => ({
+      id: `order-${index + 1}`, // Unique identifier
       productId: `O${200 + index + 1}`,
       name: `Customer ${index + 1}`,
       order: ['Lettuce', 'Cauliflower', 'Kale', 'Cabbage', 'Radishes'][index % 5],
       quantity: Math.floor(Math.random() * 10) + 1,
-      price: Math.random() * 5 + 1,
+      price: Number((Math.random() * 5 + 1).toFixed(2)), // Round to 2 decimal places
       status: ['Delivered', 'Cancelled'][index % 2],
-      date: `2025-${String(Math.floor(Math.random() * 12) + 1).padStart(2, '0')}-${String(Math.floor(Math.random() * 28) + 1).padStart(2, '0')}`,
+      date: `2025-${String(Math.floor(Math.random() * 12) + 1).padStart(2, '0')}-${String(
+        Math.floor(Math.random() * 28) + 1
+      ).padStart(2, '0')}`,
     }))
   );
 
@@ -30,7 +33,7 @@ function OrdersHistory() {
       order.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       order.order.toLowerCase().includes(searchTerm.toLowerCase()) ||
       order.quantity.toString().includes(searchTerm) ||
-      (order.quantity * order.price).toString().includes(searchTerm) ||
+      Number((order.quantity * order.price).toFixed(2)).toString().includes(searchTerm) ||
       order.status.toLowerCase().includes(searchTerm.toLowerCase()) ||
       order.date.toLowerCase().includes(searchTerm.toLowerCase())
   );
@@ -41,8 +44,8 @@ function OrdersHistory() {
     const direction = sortConfig.direction === 'asc' ? 1 : -1;
 
     if (key === 'totalPrice') {
-      const totalA = a.quantity * a.price;
-      const totalB = b.quantity * b.price;
+      const totalA = Number((a.quantity * a.price).toFixed(2));
+      const totalB = Number((b.quantity * b.price).toFixed(2));
       if (totalA < totalB) return -direction;
       if (totalA > totalB) return direction;
       return 0;
@@ -75,7 +78,7 @@ function OrdersHistory() {
   const handleRecordsPerPageChange = (e) => {
     const value = e.target.value === '100' ? sortedOrders.length : Number(e.target.value);
     setRecordsPerPage(value);
-    setCurrentPage(1); // Reset to first page when changing records per page
+    setCurrentPage(1);
   };
 
   const handlePageChange = (page) => {
@@ -91,8 +94,8 @@ function OrdersHistory() {
         'Product ID': order.productId,
         Name: order.name,
         Order: order.order,
-        Quantity: order.quantity,
-        'Total Price': (order.quantity * order.price).toFixed(2),
+        'Quantity (kg)': order.quantity,
+        'Total Price': Number((order.quantity * order.price).toFixed(2)),
         Status: order.status,
         Date: order.date,
       }))
@@ -200,39 +203,74 @@ function OrdersHistory() {
           <table>
             <thead>
               <tr>
-                <th onClick={() => sortData('productId')} className={sortConfig.key === 'productId' ? 'sorted' : ''}>
-                  Product ID {sortConfig.key === 'productId' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
+                <th
+                  onClick={() => sortData('productId')}
+                  className={sortConfig.key === 'productId' ? 'sorted' : ''}
+                >
+                  Product ID{' '}
+                  {sortConfig.key === 'productId' &&
+                    (sortConfig.direction === 'asc' ? '↑' : '↓')}
                 </th>
-                <th onClick={() => sortData('name')} className={sortConfig.key === 'name' ? 'sorted' : ''}>
-                  Name {sortConfig.key === 'name' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
+                <th
+                  onClick={() => sortData('name')}
+                  className={sortConfig.key === 'name' ? 'sorted' : ''}
+                >
+                  Name{' '}
+                  {sortConfig.key === 'name' &&
+                    (sortConfig.direction === 'asc' ? '↑' : '↓')}
                 </th>
-                <th onClick={() => sortData('order')} className={sortConfig.key === 'order' ? 'sorted' : ''}>
-                  Order {sortConfig.key === 'order' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
+                <th
+                  onClick={() => sortData('order')}
+                  className={sortConfig.key === 'order' ? 'sorted' : ''}
+                >
+                  Order{' '}
+                  {sortConfig.key === 'order' &&
+                    (sortConfig.direction === 'asc' ? '↑' : '↓')}
                 </th>
-                <th onClick={() => sortData('quantity')} className={sortConfig.key === 'quantity' ? 'sorted' : ''}>
-                  Quantity {sortConfig.key === 'quantity' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
+                <th
+                  onClick={() => sortData('quantity')}
+                  className={sortConfig.key === 'quantity' ? 'sorted' : ''}
+                >
+                  Quantity (kg){' '}
+                  {sortConfig.key === 'quantity' &&
+                    (sortConfig.direction === 'asc' ? '↑' : '↓')}
                 </th>
-                <th onClick={() => sortData('totalPrice')} className={sortConfig.key === 'totalPrice' ? 'sorted' : ''}>
-                  Total Price {sortConfig.key === 'totalPrice' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
+                <th
+                  onClick={() => sortData('totalPrice')}
+                  className={sortConfig.key === 'totalPrice' ? 'sorted' : ''}
+                >
+                  Total Price{' '}
+                  {sortConfig.key === 'totalPrice' &&
+                    (sortConfig.direction === 'asc' ? '↑' : '↓')}
                 </th>
-                <th onClick={() => sortData('status')} className={sortConfig.key === 'status' ? 'sorted' : ''}>
-                  Status {sortConfig.key === 'status' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
+                <th
+                  onClick={() => sortData('status')}
+                  className={sortConfig.key === 'status' ? 'sorted' : ''}
+                >
+                  Status{' '}
+                  {sortConfig.key === 'status' &&
+                    (sortConfig.direction === 'asc' ? '↑' : '↓')}
                 </th>
-                <th onClick={() => sortData('date')} className={sortConfig.key === 'date' ? 'sorted' : ''}>
-                  Date {sortConfig.key === 'date' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
+                <th
+                  onClick={() => sortData('date')}
+                  className={sortConfig.key === 'date' ? 'sorted' : ''}
+                >
+                  Date{' '}
+                  {sortConfig.key === 'date' &&
+                    (sortConfig.direction === 'asc' ? '↑' : '↓')}
                 </th>
                 <th>Actions</th>
               </tr>
             </thead>
             <tbody>
               {paginatedOrders.length > 0 ? (
-                paginatedOrders.map((order, index) => (
-                  <tr key={index}>
+                paginatedOrders.map((order) => (
+                  <tr key={order.id}>
                     <td>{order.productId}</td>
                     <td>{order.name}</td>
                     <td>{order.order}</td>
                     <td>{order.quantity}kg</td>
-                    <td>₱{(order.quantity * order.price).toFixed(2)}</td>
+                    <td>₱{Number((order.quantity * order.price).toFixed(2))}</td>
                     <td>{order.status}</td>
                     <td>{order.date}</td>
                     <td>
@@ -269,9 +307,9 @@ function OrdersHistory() {
                 <p><strong>Product ID:</strong> {selectedOrder.productId}</p>
                 <p><strong>Name:</strong> {selectedOrder.name}</p>
                 <p><strong>Order:</strong> {selectedOrder.order}</p>
-                <p><strong>Quantity:</strong> {selectedOrder.quantity}</p>
-                <p><strong>Price per Unit:</strong> ₱{selectedOrder.price.toFixed(2)}</p>
-                <p><strong>Total Price:</strong> ₱{(selectedOrder.quantity * selectedOrder.price).toFixed(2)}</p>
+                <p><strong>Quantity:</strong> {selectedOrder.quantity}kg</p>
+                <p><strong>Price per Unit:</strong> ₱{Number(selectedOrder.price.toFixed(2))}</p>
+                <p><strong>Total Price:</strong> ₱{Number((selectedOrder.quantity * selectedOrder.price).toFixed(2))}</p>
                 <p><strong>Status:</strong> {selectedOrder.status}</p>
                 <p><strong>Date:</strong> {selectedOrder.date}</p>
               </div>
