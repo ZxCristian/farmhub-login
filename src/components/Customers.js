@@ -435,7 +435,10 @@ function Customers() {
     );
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, 'Customers');
-    XLSX.writeFile(workbook, 'Customers.xlsx');
+    const now = new Date();
+    const formattedDate = now.toISOString().replace(/[:.]/g, '-');
+    const fileName = `Customers_${formattedDate}.xlsx`;
+    XLSX.writeFile(workbook, fileName);
   };
 
   const renderPagination = () => {

@@ -102,7 +102,10 @@ function OrdersHistory() {
     );
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, 'OrdersHistory');
-    XLSX.writeFile(workbook, 'OrdersHistory.xlsx');
+    const now = new Date();
+    const formattedDate = now.toISOString().replace(/[:.]/g, '-').slice(0, 19);
+    const filename = `OrdersHistory_${formattedDate}.xlsx`;
+    XLSX.writeFile(workbook, filename);
   };
 
   const renderPagination = () => {

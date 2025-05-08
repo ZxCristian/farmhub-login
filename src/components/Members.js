@@ -435,7 +435,10 @@ function Members() {
     );
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, 'Members');
-    XLSX.writeFile(workbook, 'Members.xlsx');
+    const now = new Date();
+    const formattedDate = now.toISOString().replace(/[:.]/g, '-').slice(0, 19);
+    const filename = `Members_${formattedDate}.xlsx`;
+    XLSX.writeFile(workbook, filename);
   };
 
   const renderPagination = () => {
